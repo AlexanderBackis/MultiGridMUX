@@ -81,6 +81,8 @@ class MainWindow(QMainWindow):
             # Close down loading bar and assign data set name
             self.cluster_progress.close()
             self.data_sets_browser.setText(self.data_sets)
+            self.update()
+            self.update()
             self.refresh_window()
 
     def PHS_1D_action(self):
@@ -118,6 +120,9 @@ class MainWindow(QMainWindow):
         self.update()
         self.app.processEvents()
         self.update()
+        self.app.processEvents()
+        self.app.processEvents()
+        self.app.processEvents()
 
     def toogle_MG_24_MG_CNCS(self):
         self.MG_24.toggled.connect(
