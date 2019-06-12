@@ -57,15 +57,21 @@ class MainWindow(QMainWindow):
                     zip_ref.extractall(unzipped_folder_path)
                 # Iterate through all files in unzipped folder and cluster
                 file_names = os.listdir(unzipped_folder_path)
-                file_paths = append_folder_and_files(unzipped_folder_path,
-                                                     file_names)
+                if (len(file_names) == 1) and file_names[0][:-4] != '.bin':
+                    new_folder = unzipped_folder_path + file_names[0] + '/'
+                    file_names = os.listdir(new_folder)
+                    file_paths = append_folder_and_files(new_folder,
+                                                         file_names)
+                else:
+                    file_paths = append_folder_and_files(unzipped_folder_path,
+                                                         file_names)
                 for j, file_path in enumerate(file_paths):
                     # Import data
                     with open(file_path, mode='rb') as bin_file:
                         content = bin_file.read()
                         data = struct.unpack('I' * (len(content)//4), content)
                     # Cluster data
-                    self.Clusters = self.Clusters.append(cluster_data(data))
+                    self.Clusters = self.Clusters.append(cluster_data(data, self))
                     # Update loading bar
                     if j % 20 == 1:
                         progress = ((i/len(zipped_folder_paths))*100
@@ -82,6 +88,8 @@ class MainWindow(QMainWindow):
             self.cluster_progress.close()
             self.data_sets_browser.setText(self.data_sets)
             self.update()
+            self.update()
+            self.app.processEvents()
             self.update()
             self.refresh_window()
 

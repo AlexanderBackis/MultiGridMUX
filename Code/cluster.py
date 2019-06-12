@@ -48,7 +48,7 @@ ExTsShift        = 30
 # CLUSTER DATA
 # =============================================================================
 
-def cluster_data(data, ILL_buses=[], progressBar=None, dialog=None, app=None):
+def cluster_data(data, window):
     """ Clusters the imported data and stores it two data frames: one for 
         individual events and one for coicident events (i.e. candidate neutron 
         events). 
@@ -82,23 +82,22 @@ def cluster_data(data, ILL_buses=[], progressBar=None, dialog=None, app=None):
     """
     # Initiate dictionaries to store data
     size = len(data)
+    if window.MG_CNCS.isChecked():
+        attributes = ['wADC_1', 'wADC_2', 'wCh_1', 'wCh_2',
+                      'gADC_1', 'gADC_2', 'gCh_1', 'gCh_2']
+    else:
+        attributes = ['wADC_1', 'wADC_2', 'wCh_1', 'wCh_2',
+                      'wADC_3', 'wADC_4', 'wCh_3', 'wCh_4',
+                      'gADC_1', 'gADC_2', 'gCh_1', 'gCh_2',
+                      ]
     events = {'Module': np.zeros([size], dtype=int),
-              'ToF': np.zeros([size], dtype=int),
-              'gADC_1': np.zeros([size], dtype=int),
-              'gCh_1': np.zeros([size], dtype=int),
-              'gADC_2': np.zeros([size], dtype=int),
-              'gCh_2': np.zeros([size], dtype=int),
-              'wADC_1': np.zeros([size], dtype=int),
-              'wCh_1': np.zeros([size], dtype=int),
-              'wADC_2': np.zeros([size], dtype=int),
-              'wCh_2': np.zeros([size], dtype=int),
+              'ToF': np.zeros([size], dtype=int)
               }
-    #Declare variables
-    index = 0
-    attributes = ['gADC_1', 'gADC_2', 'gCh_1', 'gCh_2',
-                  'wADC_1', 'wADC_2', 'wCh_1', 'wCh_2']
+    for attribute in attributes:
+        events.update({attribute: np.zeros([size], dtype=int)})
     #Declare temporary variables
     isOpen = False
+    index = 0
     #Four possibilities in each word: Header, DataEvent, DataExTs or EoE.
     for i, word in enumerate(data):
         if (word & SignatureMask) == Header:
