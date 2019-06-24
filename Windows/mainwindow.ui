@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>499</width>
-    <height>643</height>
+    <height>645</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -579,7 +579,7 @@
      <string>1D</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="Coincidences_2D">
+   <widget class="QPushButton" name="Coincidences_2D_button">
     <property name="geometry">
      <rect>
       <x>270</x>
@@ -605,7 +605,7 @@
      <string>2D</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="Coincidences_3D">
+   <widget class="QPushButton" name="Coincidences_3D_button">
     <property name="geometry">
      <rect>
       <x>270</x>
@@ -940,7 +940,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>500</string>
+     <string>2000</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_46">
@@ -954,6 +954,22 @@
     </property>
     <property name="text">
      <string>Ch:</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ADC_button">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>250</y>
+      <width>121</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>ADC</string>
     </property>
    </widget>
   </widget>

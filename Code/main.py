@@ -10,9 +10,10 @@ import numpy as np
 import struct
 import pandas as pd
 
-from cluster import cluster_data
-from Plotting.PHS import PHS_1D_plot
-from Plotting.Miscellaneous import Channels_plot, ToF_histogram
+from cluster import cluster_data, get_ADC_to_Ch
+from Plotting.PHS import PHS_1D_plot, PHS_2D_plot
+from Plotting.Coincidences import Coincidences_2D_plot, Coincidences_3D_plot
+from Plotting.Miscellaneous import ToF_histogram, Channels_plot, ADC_plot
 
 # =============================================================================
 # Windows
@@ -44,6 +45,7 @@ class MainWindow(QMainWindow):
         dirname = os.path.dirname(__file__)
         unzipped_folder_path = os.path.join(dirname, '../temp_folder/')
         zipped_folder_paths = QFileDialog.getOpenFileNames()[0]
+        ADC_to_Ch = get_ADC_to_Ch()
         if len(zipped_folder_paths) > 0:
             # Initiate loading bar
             self.cluster_progress.show()
@@ -71,7 +73,8 @@ class MainWindow(QMainWindow):
                         content = bin_file.read()
                         data = struct.unpack('I' * (len(content)//4), content)
                     # Cluster data
-                    self.Clusters = self.Clusters.append(cluster_data(data, self))
+                    subset_clusters = cluster_data(data, ADC_to_Ch, self)
+                    self.Clusters = self.Clusters.append(subset_clusters)
                     # Update loading bar
                     if j % 20 == 1:
                         progress = ((i/len(zipped_folder_paths))*100
@@ -98,15 +101,34 @@ class MainWindow(QMainWindow):
             fig = PHS_1D_plot(self.Clusters, self)
             fig.show()
 
-    def Channels_action(self):
+    def PHS_2D_action(self):
         if self.data_sets != '':
-            fig = Channels_plot(self.Clusters, self)
+            fig = PHS_2D_plot(self.Clusters, self)
             fig.show()
 
     def ToF_action(self):
         if self.data_sets != '':
             fig = ToF_histogram(self.Clusters, self)
             fig.show()
+
+    def Channels_action(self):
+        if self.data_sets != '':
+            fig = Channels_plot(self.Clusters, self)
+            fig.show()
+
+    def ADC_action(self):
+        if self.data_sets != '':
+            fig = ADC_plot(self.Clusters, self)
+            fig.show()
+
+    def Coincidences_2D_action(self):
+        if self.data_sets != '':
+            fig = Coincidences_2D_plot(self.Clusters, self)
+            fig.show()
+
+    def Coincidences_3D_action(self):
+        if self.data_sets != '':
+            Coincidences_3D_plot(self.Clusters, self)
 
 
     # ========================================================================
@@ -118,8 +140,12 @@ class MainWindow(QMainWindow):
         self.cluster_button.clicked.connect(self.cluster_action)
         # Plotting
         self.PHS_1D_button.clicked.connect(self.PHS_1D_action)
-        self.Channels_button.clicked.connect(self.Channels_action)
+        self.PHS_2D_button.clicked.connect(self.PHS_2D_action)
+        self.Coincidences_2D_button.clicked.connect(self.Coincidences_2D_action)
+        self.Coincidences_3D_button.clicked.connect(self.Coincidences_3D_action)
         self.ToF_button.clicked.connect(self.ToF_action)
+        self.Channels_button.clicked.connect(self.Channels_action)
+        self.ADC_button.clicked.connect(self.ADC_action)
         # Miscellaneous
         self.toogle_MG_24_MG_CNCS()
 
@@ -159,8 +185,9 @@ def mkdir_p(mypath):
 
 
 def append_folder_and_files(folder, files):
-        folder_vec = np.array(len(files)*[folder])
-        return np.core.defchararray.add(folder_vec, files)
+    folder_vec = np.array(len(files)*[folder])
+    return np.core.defchararray.add(folder_vec, files)
+
 
 
 # =============================================================================
