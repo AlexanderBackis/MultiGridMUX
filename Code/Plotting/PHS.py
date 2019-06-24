@@ -20,8 +20,11 @@ def PHS_1D_plot(clusters, window):
         plt.grid(True, which='major', zorder=0)
         plt.grid(True, which='minor', linestyle='--', zorder=0)
         plt.yscale('log')
-        plt.hist(clusters[wg + 'ADC_1'], bins=number_bins,
-                 range=[0, 4095], histtype='step',
+        if wg == 'g':
+            adcs = clusters['gADC_1'].append(clusters['gADC_2'])
+        else:
+            adcs = clusters['wADC_1']
+        plt.hist(adcs, bins=number_bins, range=[0, 4095], histtype='step',
                  color='black', zorder=5)
     # Intial filter
     clusters = filter_clusters(clusters, window)
@@ -53,7 +56,13 @@ def PHS_2D_plot(clusters, window):
         plt.xlabel('Channel')
         plt.ylabel('Charge [ADC channels]')
         plt.title(sub_title)
-        plt.hist2d(clusters[wg + 'Ch_1'], clusters[wg + 'ADC_1'],
+        if wg == 'g':
+            channels = clusters['gCh_1'].append(clusters['gCh_2'])
+            adcs = clusters['gADC_1'].append(clusters['gADC_2'])
+        else:
+            channels = clusters['wCh_1']
+            adcs = clusters['wADC_1']
+        plt.hist2d(channels, adcs,
                    bins=[bins, 120],
                    range=[limit, [0, 4095]], norm=LogNorm(),
                    #vmin=vmin, vmax=vmax,
