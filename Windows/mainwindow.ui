@@ -28,7 +28,7 @@
 ('.zip')</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="Save">
+   <widget class="QPushButton" name="save_button">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -42,7 +42,7 @@
 ('.zip'→'.h5')</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="Load">
+   <widget class="QPushButton" name="load_button">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -174,7 +174,7 @@
         <number>100000</number>
        </property>
        <property name="value">
-        <number>400</number>
+        <number>0</number>
        </property>
       </widget>
      </item>
@@ -233,7 +233,7 @@
         <number>100000</number>
        </property>
        <property name="value">
-        <number>500</number>
+        <number>0</number>
        </property>
       </widget>
      </item>

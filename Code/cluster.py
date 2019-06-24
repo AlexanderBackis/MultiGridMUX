@@ -141,6 +141,63 @@ def cluster_data(data, ADC_to_Ch, window):
 
 
 # =============================================================================
+# SAVE DATA
+# =============================================================================
+
+def save_data(path, window):
+    # Initiate loading bar
+    window.save_progress.setValue(0)
+    window.save_progress.show()
+    window.refresh_window()
+    # Save clusters
+    window.Clusters.to_hdf(path, 'Clusters', complevel=9)
+    window.save_progress.setValue(50)
+    window.refresh_window()
+    # Save parameters
+    data_sets = pd.DataFrame({'data_sets': [window.data_sets]})
+    measurement_time = pd.DataFrame({'measurement_time': [window.measurement_time]})
+    data_sets.to_hdf(path, 'data_sets', complevel=9)
+    measurement_time.to_hdf(path, 'measurement_time', complevel=9)
+    window.save_progress.setValue(100)
+    window.refresh_window()
+    window.save_progress.close()
+    window.refresh_window()
+
+
+# =============================================================================
+# LOAD DATA
+# =============================================================================
+
+
+def load_data(path, window):
+    # Initiate loading bar
+    window.load_progress.setValue(0)
+    window.load_progress.show()
+    window.refresh_window()
+    # Load clusters
+    Clusters = pd.read_hdf(path, 'Clusters')
+    window.load_progress.setValue(50)
+    window.refresh_window()
+    # Load parameters
+    measurement_time_df = pd.read_hdf(path, 'measurement_time')
+    measurement_time = measurement_time_df['measurement_time'].iloc[0]
+    data_sets_df = pd.read_hdf(path, 'data_sets')
+    data_sets = data_sets_df['data_sets'].iloc[0]
+    # Write or append
+    window.Clusters = Clusters
+    window.measurement_time = measurement_time
+    window.data_sets = data_sets
+    # Reset index on clusters and events
+    window.Clusters.reset_index(drop=True, inplace=True)
+    # Update text browser and close loading bar
+    window.load_progress.setValue(100)
+    window.refresh_window()
+    window.load_progress.close()
+    window.data_sets_browser.setText(window.data_sets)
+    window.refresh_window()
+
+
+# =============================================================================
 # Helper Functions
 # =============================================================================
 

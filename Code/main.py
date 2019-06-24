@@ -10,7 +10,7 @@ import numpy as np
 import struct
 import pandas as pd
 
-from cluster import cluster_data, get_ADC_to_Ch
+from cluster import cluster_data, save_data, load_data, get_ADC_to_Ch
 from Plotting.PHS import PHS_1D_plot, PHS_2D_plot
 from Plotting.Coincidences import Coincidences_2D_plot, Coincidences_3D_plot
 from Plotting.Miscellaneous import ToF_histogram, Channels_plot, ADC_plot
@@ -37,7 +37,7 @@ class MainWindow(QMainWindow):
         self.refresh_window()
 
     # =========================================================================
-    # Actions
+    # File handling
     # =========================================================================
 
     def cluster_action(self):
@@ -96,6 +96,20 @@ class MainWindow(QMainWindow):
             self.update()
             self.refresh_window()
 
+    def save_action(self):
+        save_path = QFileDialog.getSaveFileName()[0]
+        if save_path != '':
+            save_data(save_path, self)
+
+    def load_action(self):
+        load_path = QFileDialog.getOpenFileName()[0]
+        if load_path != '':
+            load_data(load_path, self)
+
+    # =========================================================================
+    # Plotting
+    # =========================================================================
+
     def PHS_1D_action(self):
         if self.data_sets != '':
             fig = PHS_1D_plot(self.Clusters, self)
@@ -138,6 +152,8 @@ class MainWindow(QMainWindow):
     def setup_buttons(self):
         # File handling
         self.cluster_button.clicked.connect(self.cluster_action)
+        self.save_button.clicked.connect(self.save_action)
+        self.load_button.clicked.connect(self.load_action)
         # Plotting
         self.PHS_1D_button.clicked.connect(self.PHS_1D_action)
         self.PHS_2D_button.clicked.connect(self.PHS_2D_action)
