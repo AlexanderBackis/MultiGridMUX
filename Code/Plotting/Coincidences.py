@@ -6,6 +6,7 @@ import plotly.graph_objs as go
 import pandas as pd
 import plotly.io as pio
 import os
+from Plotting.HelperFunctions import filter_clusters
 
 # =============================================================================
 # Coincidence Histogram (2D)
@@ -15,6 +16,8 @@ import os
 def Coincidences_2D_plot(clusters, window):
     # Declare parameters (added with condition if empty array)
     data_sets = window.data_sets.splitlines()[0]
+    # Intial filter
+    clusters = filter_clusters(clusters, window)
     # Plot data
     fig = plt.figure()
     plt.title('Coincident events (2D)\nData set(s): %s' % data_sets)
@@ -32,6 +35,8 @@ def Coincidences_2D_plot(clusters, window):
 # =============================================================================
 
 def Coincidences_3D_plot(df, window):
+    # Intial filter
+    df = filter_clusters(df, window)
     # Declare max and min count
     min_count = 0
     max_count = np.inf

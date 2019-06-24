@@ -105,7 +105,7 @@
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>0</x>
+      <x>10</x>
       <y>350</y>
       <width>469</width>
       <height>135</height>
@@ -115,13 +115,6 @@
      <property name="sizeConstraint">
       <enum>QLayout::SetDefaultConstraint</enum>
      </property>
-     <item row="3" column="3">
-      <widget class="QSpinBox" name="ToF_min">
-       <property name="maximum">
-        <number>16667</number>
-       </property>
-      </widget>
-     </item>
      <item row="6" column="1">
       <widget class="QCheckBox" name="wADC_filter">
        <property name="text">
@@ -146,7 +139,7 @@
       </widget>
      </item>
      <item row="5" column="6">
-      <widget class="QSpinBox" name="grid_max">
+      <widget class="QSpinBox" name="gCh_max">
        <property name="minimum">
         <number>1</number>
        </property>
@@ -154,7 +147,7 @@
         <number>40</number>
        </property>
        <property name="value">
-        <number>40</number>
+        <number>11</number>
        </property>
       </widget>
      </item>
@@ -164,14 +157,14 @@
         <number>100000</number>
        </property>
        <property name="value">
-        <number>12288</number>
+        <number>4095</number>
        </property>
       </widget>
      </item>
      <item row="0" column="5" colspan="2">
       <widget class="QLabel" name="label_20">
        <property name="text">
-        <string>Coordinates</string>
+        <string>   Coordinates</string>
        </property>
       </widget>
      </item>
@@ -222,15 +215,15 @@
       </widget>
      </item>
      <item row="3" column="6">
-      <widget class="QSpinBox" name="grid_min">
+      <widget class="QSpinBox" name="gCh_min">
        <property name="minimum">
-        <number>1</number>
+        <number>0</number>
        </property>
        <property name="maximum">
         <number>80</number>
        </property>
        <property name="value">
-        <number>1</number>
+        <number>0</number>
        </property>
       </widget>
      </item>
@@ -245,7 +238,7 @@
       </widget>
      </item>
      <item row="6" column="5">
-      <widget class="QCheckBox" name="wire_filter">
+      <widget class="QCheckBox" name="wCh_filter">
        <property name="text">
         <string/>
        </property>
@@ -255,15 +248,15 @@
       </widget>
      </item>
      <item row="5" column="5">
-      <widget class="QSpinBox" name="wire_max">
+      <widget class="QSpinBox" name="wCh_max">
        <property name="minimum">
         <number>1</number>
        </property>
        <property name="maximum">
-        <number>20</number>
+        <number>80</number>
        </property>
        <property name="value">
-        <number>20</number>
+        <number>79</number>
        </property>
       </widget>
      </item>
@@ -301,7 +294,7 @@
       </widget>
      </item>
      <item row="6" column="6">
-      <widget class="QCheckBox" name="grid_filter">
+      <widget class="QCheckBox" name="gCh_filter">
        <property name="text">
         <string/>
        </property>
@@ -311,15 +304,15 @@
       </widget>
      </item>
      <item row="3" column="5">
-      <widget class="QSpinBox" name="wire_min">
+      <widget class="QSpinBox" name="wCh_min">
        <property name="minimum">
-        <number>1</number>
+        <number>0</number>
        </property>
        <property name="maximum">
         <number>20</number>
        </property>
        <property name="value">
-        <number>1</number>
+        <number>0</number>
        </property>
       </widget>
      </item>
@@ -345,7 +338,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Wires</string>
+        <string>  wCh</string>
        </property>
       </widget>
      </item>
@@ -358,7 +351,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Charge [ADC channels]</string>
+        <string>  Charge [ADC channels]</string>
        </property>
       </widget>
      </item>
@@ -368,7 +361,7 @@
         <number>100000</number>
        </property>
        <property name="value">
-        <number>12288</number>
+        <number>4095</number>
        </property>
       </widget>
      </item>
@@ -381,17 +374,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Grids</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="3">
-      <widget class="QSpinBox" name="ToF_max">
-       <property name="maximum">
-        <number>16667</number>
-       </property>
-       <property name="value">
-        <number>16667</number>
+        <string>  gCh</string>
        </property>
       </widget>
      </item>
@@ -432,6 +415,20 @@
        </property>
       </widget>
      </item>
+     <item row="3" column="3">
+      <widget class="QLineEdit" name="ToF_min">
+       <property name="text">
+        <string>0</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="3">
+      <widget class="QLineEdit" name="ToF_max">
+       <property name="text">
+        <string>1e15</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
    <widget class="QLabel" name="label_13">
@@ -460,7 +457,7 @@
    <widget class="QLabel" name="label_19">
     <property name="geometry">
      <rect>
-      <x>190</x>
+      <x>200</x>
       <y>330</y>
       <width>161</width>
       <height>16</height>
