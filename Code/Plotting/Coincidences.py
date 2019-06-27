@@ -71,7 +71,7 @@ def Coincidences_3D_plot(df, window):
                                y=hist[1],
                                z=hist[2],
                                mode='markers',
-                               marker=dict(size=5,
+                               marker=dict(size=20,
                                            color=np.log10(hist[3]),
                                            colorscale='Jet',
                                            opacity=1,
