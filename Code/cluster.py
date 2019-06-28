@@ -49,33 +49,26 @@ ExTsShift        = 30
 # =============================================================================
 
 def cluster_data(data, ADC_to_Ch, window):
-    """ Clusters the imported data and stores it two data frames: one for 
-        individual events and one for coicident events (i.e. candidate neutron 
-        events).
-        
-        Does this in the following fashion for coincident events:
+    """ Clusters the imported data and stores into a data frame.
+
+        Does this in the following fashion:
             1. Reads one word at a time
-            2. Checks what type of word it is (Header, BusStart, DataEvent,
-               DataExTs or EoE).
+            2. Checks what type of word it is (Header, Data or EoE).
             3. When a Header is encountered, 'isOpen' is set to 'True',
                signifying that a new event has been started. Data is then
-               gathered into a single coincident event until a different bus is
-               encountered (unless ILL exception), in which case a new event is
-               started.
+               gathered into a single coincident event. 
             4. When EoE is encountered the event is formed, and timestamp is 
-               assigned to it and all the created events under the current 
-               Header. This event is placed in the created dictionary.
+               assigned to it.
             5. After the iteration through data is complete, the dictionary
                containing the coincident events is convereted to a DataFrame.
            
     Args:
         data (tuple)    : Tuple containing data, one word per element.
-        ILL_buses (list): List containg all ILL buses
+        ADC_to_Ch (dict): Dictionary containing the delimiters for Channels
+        window (window) : Window of GUI
             
     Returns:
-        data (tuple): A tuple where each element is a 32 bit mesytec word
-        
-        events_df (DataFrame): DataFrame containing one event (wire or grid) 
+        events_df (DataFrame): DataFrame containing one event
                                per row. Each event has information about:
                                "Bus", "Time", "Channel", "ADC".
         
