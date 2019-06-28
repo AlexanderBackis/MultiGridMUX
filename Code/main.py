@@ -215,3 +215,5 @@ main_window = MainWindow(app)
 main_window.setAttribute(Qt.WA_DeleteOnClose, True)
 main_window.setup_buttons()
 sys.exit(app.exec_())
+
+print("hello")
