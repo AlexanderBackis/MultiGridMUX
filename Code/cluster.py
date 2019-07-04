@@ -56,22 +56,22 @@ def cluster_data(data, ADC_to_Ch, window):
             2. Checks what type of word it is (Header, Data or EoE).
             3. When a Header is encountered, 'isOpen' is set to 'True',
                signifying that a new event has been started. Data is then
-               gathered into a single coincident event. 
-            4. When EoE is encountered the event is formed, and timestamp is 
+               gathered into a single coincident event.
+            4. When EoE is encountered the event is formed, and timestamp is
                assigned to it.
             5. After the iteration through data is complete, the dictionary
                containing the coincident events is convereted to a DataFrame.
-           
+
     Args:
         data (tuple)    : Tuple containing data, one word per element.
         ADC_to_Ch (dict): Dictionary containing the delimiters for Channels
         window (window) : Window of GUI
-            
+
     Returns:
         events_df (DataFrame): DataFrame containing one event
                                per row. Each event has information about:
                                "Bus", "Time", "Channel", "ADC".
-        
+
     """
     # Initiate dictionaries to store data
     size = len(data)
@@ -80,11 +80,17 @@ def cluster_data(data, ADC_to_Ch, window):
                       'gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2']
         channels = ['wCh_1', 'wCh_2', 'gCh_1', 'gCh_2']
     else:
-        attributes = ['gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2',
+        """attributes = ['gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2',
                       'wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2',
                       'wADC_3', 'wADC_4', 'wChADC_3', 'wChADC_4'
                       ]
-        channels = ['wCh_1', 'wCh_2', 'wCh_3', 'wCh_4', 'gCh_1', 'gCh_2']
+        """
+        attributes = ['wADC_3', 'wADC_4', 'wChADC_3', 'wChADC_4',
+                     'wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2',
+                     'gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2']
+
+        #channels = ['wCh_3', 'wCh_4', 'wCh_1', 'wCh_2','gCh_1', 'gCh_2']
+        channels = ['wCh_1', 'wCh_2', 'wCh_3', 'wCh_4','gCh_1', 'gCh_2']
     events = {'Module': np.zeros([size], dtype=int),
               'ToF': np.zeros([size], dtype=int)
               }
@@ -212,6 +218,7 @@ def mkdir_p(mypath):
 def get_ADC_to_Ch():
     # Declare parameters
     layers_dict = {'Wires': 16, 'Grids': 12}
+    #layers_dict = {'Wires': 16, 'Grids': 24}
     delimiters_table = import_delimiter_table()
     channel_mapping = import_channel_mappings()
     print(channel_mapping['Wires'])
@@ -259,7 +266,3 @@ def import_delimiter_table():
         if not np.isnan(row[2]):
             grids.append(np.array([row[2], row[3]]))
     return {'Wires': np.array(wires), 'Grids': np.array(grids)}
-
-
-
-

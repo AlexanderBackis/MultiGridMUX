@@ -157,12 +157,3 @@ def import_delimiter_table():
         if not np.isnan(row[2]):
             grids.append(np.array([row[2], row[3]]))
     return {'Wires': np.array(wires), 'Grids': np.array(grids)}
-
-
-
-
-
-
-
-
-

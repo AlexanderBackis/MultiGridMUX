@@ -24,6 +24,12 @@ def Coincidences_2D_plot(clusters, window):
     plt.hist2d(clusters.wCh_1, clusters.gCh_1, bins=[80, 12],
                range=[[-0.5, 79.5], [-0.5, 11.5]],
                norm=LogNorm(), cmap='jet')
+    """
+    plt.hist2d(clusters.wCh_1, clusters.gCh_1, bins=[80, 24],
+               range=[[-0.5, 79.5], [-0.5, 23.5]],
+               norm=LogNorm(), cmap='jet')
+    """
+    plt.xlabel('Wire [Channel number]')
     plt.xlabel('Wire [Channel number]')
     plt.ylabel('Grid [Channel number]')
     plt.colorbar()
@@ -120,15 +126,3 @@ def get_MG24_to_XYZ_mapping():
             z = (wCh % 20) * WireSpacing
             MG24_ch_to_coord[gCh, wCh] = {'x': x, 'y': y, 'z': z}
     return MG24_ch_to_coord
-
-
-
-
-
-
-
-
-
-
-
-

@@ -14,6 +14,7 @@ from cluster import cluster_data, save_data, load_data, get_ADC_to_Ch
 from Plotting.PHS import PHS_1D_plot, PHS_2D_plot
 from Plotting.Coincidences import Coincidences_2D_plot, Coincidences_3D_plot
 from Plotting.Miscellaneous import ToF_histogram, Channels_plot, ADC_plot
+from Plotting.HelpMessage import gethelp
 
 # =============================================================================
 # Windows
@@ -144,6 +145,11 @@ class MainWindow(QMainWindow):
         if self.data_sets != '':
             Coincidences_3D_plot(self.Clusters, self)
 
+    def help_action(self):
+        print("HELP!!!!")
+        gethelp()
+
+
 
     # ========================================================================
     # Helper Functions
@@ -164,6 +170,8 @@ class MainWindow(QMainWindow):
         self.ADC_button.clicked.connect(self.ADC_action)
         # Miscellaneous
         self.toogle_MG_24_MG_CNCS()
+        # Help
+        self.help_button.clicked.connect(self.help_action)
 
     def refresh_window(self):
         self.app.processEvents()
@@ -205,7 +213,6 @@ def append_folder_and_files(folder, files):
     return np.core.defchararray.add(folder_vec, files)
 
 
-
 # =============================================================================
 # Start GUI
 # =============================================================================
@@ -215,5 +222,3 @@ main_window = MainWindow(app)
 main_window.setAttribute(Qt.WA_DeleteOnClose, True)
 main_window.setup_buttons()
 sys.exit(app.exec_())
-
-print("hello")
