@@ -66,14 +66,18 @@ def Channels_plot(events, window):
         height = 8
         width = 10
     else:
+        #if window.module_button_16.isChecked():
         attributes = ['wChADC_1', 'wChADC_2', 'gChADC_1',
                       'gChADC_2', 'wChADC_3', 'wChADC_4']
+    #    else:
+#        attributes = ['wChADC_3', 'wChADC_4', 'gChADC_1',
+                     # 'gChADC_2', 'wChADC_1', 'wChADC_2']
         rows = 3
         cols = 2
         height = 12
         width = 10
     number_bins = int(window.chBins.text())
-    delimiter_table = import_delimiter_table()
+    delimiter_table = import_delimiter_table(window)
     # Prepare figure
     fig = plt.figure()
     fig.set_figheight(height)
@@ -147,13 +151,20 @@ def ADC_plot(events, window):
 # Helper Functions
 # =============================================================================
 
-def import_delimiter_table():
+def import_delimiter_table(self):
     dirname = os.path.dirname(__file__)
     path = os.path.join(dirname, '../../Tables/Histogram_delimiters.xlsx')
     matrix = pd.read_excel(path).values
     wires, grids = [], []
-    for row in matrix[1:]:
-        wires.append(np.array([row[0], row[1]]))
-        if not np.isnan(row[2]):
-            grids.append(np.array([row[2], row[3]]))
+    if self.module_button_20.isChecked():
+        for row in matrix[1:]:
+            wires.append(np.array([row[0], row[1]])) # 0 1
+            if not np.isnan(row[2]): # 2
+                grids.append(np.array([row[2], row[3]])) # 2 3
+    elif self.module_button_16.isChecked():
+        for row in matrix[1:]:
+            if not np.isnan(row[4]):
+                wires.append(np.array([row[4], row[5]])) # 0 1
+            if not np.isnan(row[6]): # 2
+                grids.append(np.array([row[6], row[7]])) # 2 3
     return {'Wires': np.array(wires), 'Grids': np.array(grids)}

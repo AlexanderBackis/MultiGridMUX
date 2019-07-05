@@ -46,7 +46,7 @@ class MainWindow(QMainWindow):
         dirname = os.path.dirname(__file__)
         unzipped_folder_path = os.path.join(dirname, '../temp_folder/')
         zipped_folder_paths = QFileDialog.getOpenFileNames()[0]
-        ADC_to_Ch = get_ADC_to_Ch()
+        ADC_to_Ch = get_ADC_to_Ch(self)
         if len(zipped_folder_paths) > 0:
             # Initiate loading bar
             self.cluster_progress.show()
@@ -149,6 +149,13 @@ class MainWindow(QMainWindow):
         print("HELP!!!!")
         gethelp()
 
+    def select_module_action(self):
+        if (self.module_button_16.isChecked() == True and self.module_button_20.isChecked() == True):
+            print("selecting both modules")
+        elif self.module_button_16.isChecked() == True:
+            print("selecting module 1, 16 by 4")
+        elif self.module_button_20.isChecked():
+            print("selecting module 2, 20 by 4") == True
 
 
     # ========================================================================
@@ -170,6 +177,7 @@ class MainWindow(QMainWindow):
         self.ADC_button.clicked.connect(self.ADC_action)
         # Miscellaneous
         self.toogle_MG_24_MG_CNCS()
+        self.select_modules()
         # Help
         self.help_button.clicked.connect(self.help_action)
 
@@ -187,6 +195,16 @@ class MainWindow(QMainWindow):
             lambda checked: checked and self.MG_CNCS.setChecked(False))
         self.MG_CNCS.toggled.connect(
             lambda checked: checked and self.MG_24.setChecked(False))
+
+    def select_modules(self):
+        self.module_button_16.toggled.connect(self.select_module_action)
+        self.module_button_20.toggled.connect(self.select_module_action)
+        self.module_button_16.toggled.connect(
+                lambda checked: not checked and self.module_button_20.setChecked(True))
+        self.module_button_20.toggled.connect(
+                lambda checked: not checked and self.module_button_16.setChecked(True))
+
+
 
 
 # =============================================================================
