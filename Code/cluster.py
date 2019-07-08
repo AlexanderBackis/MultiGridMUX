@@ -77,20 +77,10 @@ def cluster_data(data, ADC_to_Ch, window):
     """
     # Initiate dictionaries to store data
     size = len(data)
-    if window.MG_CNCS.isChecked():
-        attributes = ['wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2',
-                      'gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2']
-        channels = ['wCh_1', 'wCh_2', 'gCh_1', 'gCh_2']
-    elif window.MG_24.isChecked():
-        if window.module_button_20.isChecked():
-            attributes = ['wADC_3', 'wADC_4', 'wChADC_3', 'wChADC_4',
-                          'wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2',
-                          'gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2']
-        elif window.module_button_16.isChecked():
-            attributes = ['wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2',
-                          'wADC_3', 'wADC_4', 'wChADC_3', 'wChADC_4',
-                          'gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2']
-        channels = ['wCh_1', 'wCh_2', 'wCh_3', 'wCh_4','gCh_1', 'gCh_2']
+    attributes = ['wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2',
+                  'wADC_3', 'wADC_4', 'wChADC_3', 'wChADC_4',
+                  'gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2']
+    channels = ['wCh_1', 'wCh_2', 'wCh_3', 'wCh_4', 'gCh_1', 'gCh_2']
     events = {'Module': np.zeros([size], dtype=int),
               'ToF': np.zeros([size], dtype=int)
               }

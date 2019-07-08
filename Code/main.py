@@ -73,6 +73,8 @@ class MainWindow(QMainWindow):
                     with open(file_path, mode='rb') as bin_file:
                         content = bin_file.read()
                         data = struct.unpack('I' * (len(content)//4), content)
+                        print('Number of 14 packs of words')
+                        print(len(content)/(4*14))
                     # Cluster data
                     subset_clusters = cluster_data(data, ADC_to_Ch, self)
                     self.Clusters = self.Clusters.append(subset_clusters)
@@ -175,9 +177,6 @@ class MainWindow(QMainWindow):
         self.ToF_button.clicked.connect(self.ToF_action)
         self.Channels_button.clicked.connect(self.Channels_action)
         self.ADC_button.clicked.connect(self.ADC_action)
-        # Miscellaneous
-        self.toogle_MG_24_MG_CNCS()
-        self.select_modules()
         # Help
         self.help_button.clicked.connect(self.help_action)
 
@@ -190,19 +189,7 @@ class MainWindow(QMainWindow):
         self.app.processEvents()
         self.app.processEvents()
 
-    def toogle_MG_24_MG_CNCS(self):
-        self.MG_24.toggled.connect(
-            lambda checked: checked and self.MG_CNCS.setChecked(False))
-        self.MG_CNCS.toggled.connect(
-            lambda checked: checked and self.MG_24.setChecked(False))
 
-    def select_modules(self):
-        self.module_button_16.toggled.connect(self.select_module_action)
-        self.module_button_20.toggled.connect(self.select_module_action)
-        self.module_button_16.toggled.connect(
-                lambda checked: not checked and self.module_button_20.setChecked(True))
-        self.module_button_20.toggled.connect(
-                lambda checked: not checked and self.module_button_16.setChecked(True))
 
 
 
