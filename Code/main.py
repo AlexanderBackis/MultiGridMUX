@@ -20,7 +20,7 @@ from Plotting.HelpMessage import gethelp
 # Windows
 # =============================================================================
 
-
+# test comment
 class MainWindow(QMainWindow):
     def __init__(self, app, parent=None):
         super(MainWindow, self).__init__(parent)
