@@ -20,7 +20,6 @@ from Plotting.HelpMessage import gethelp
 # Windows
 # =============================================================================
 
-# test comment
 class MainWindow(QMainWindow):
     def __init__(self, app, parent=None):
         super(MainWindow, self).__init__(parent)
@@ -42,41 +41,23 @@ class MainWindow(QMainWindow):
 
     def cluster_action(self):
         # Declare parameters
-        dirname = os.path.dirname(__file__)
-        unzipped_folder_path = os.path.join(dirname, '../temp_folder/')
-        zipped_folder_paths = QFileDialog.getOpenFileNames()[0]
+        folder_path = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
         ADC_to_Ch = get_ADC_to_Ch(self)
-        if len(zipped_folder_paths) > 0:
-            # Iterate through all zipped folders
-            for i, zipped_folder_path in enumerate(zipped_folder_paths):
-                # Extract files from zipped file into temporary folder
-                mkdir_p(unzipped_folder_path)
-                with zipfile.ZipFile(zipped_folder_path, "r") as zip_ref:
-                    zip_ref.extractall(unzipped_folder_path)
-                # Iterate through all files in unzipped folder and cluster
-                file_names = os.listdir(unzipped_folder_path)
-                if (len(file_names) == 1) and file_names[0][:-4] != '.bin':
-                    new_folder = unzipped_folder_path + file_names[0] + '/'
-                    file_names = os.listdir(new_folder)
-                    file_paths = append_folder_and_files(new_folder,
-                                                         file_names)
-                else:
-                    file_paths = append_folder_and_files(unzipped_folder_path,
-                                                         file_names)
-                for j, file_path in enumerate(file_paths):
-                    # Import data
-                    with open(file_path, mode='rb') as bin_file:
-                        content = bin_file.read()
-                        data = struct.unpack('I' * (len(content)//4), content)
-                    # Cluster data
-                    subset_clusters = cluster_data(data, ADC_to_Ch, self)
-                    self.Clusters = self.Clusters.append(subset_clusters)
-                shutil.rmtree(unzipped_folder_path, ignore_errors=True)
-                # Add data set to list of data sets
-                self.data_sets += zipped_folder_path.rsplit('/', 1)[-1]
-                if len(zipped_folder_paths) > 1:
-                    self.data_sets += '\n'
-            # Close down loading bar and assign data set name
+        if folder_path != '':
+            # Iterate through all files in folder
+            file_names = [f for f in os.listdir(folder_path) if f[-4:] == '.bin']
+            file_paths = append_folder_and_files(folder_path + '/', file_names)
+            for file_path in file_paths:
+                # Import data
+                with open(file_path, mode='rb') as bin_file:
+                    content = bin_file.read()
+                    data = struct.unpack('I' * (len(content)//4), content)
+                # Cluster data
+                subset_clusters = cluster_data(data, ADC_to_Ch, self)
+                self.Clusters = self.Clusters.append(subset_clusters)
+            # Add data set to list of data sets
+            self.data_sets += folder_path.rsplit('/', 1)[-1]
+            # Assign data set name
             self.data_sets_browser.setText(self.data_sets)
             self.update()
             self.update()
