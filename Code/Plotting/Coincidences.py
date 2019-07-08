@@ -15,15 +15,22 @@ from Plotting.HelperFunctions import filter_clusters
 
 def Coincidences_2D_plot(clusters, window):
     # Declare parameters (added with condition if empty array)
-    data_sets = window.data_sets.splitlines()[0]
+    data_sets = window.data_sets.splitlines()[0] #0
     # Intial filter
     clusters = filter_clusters(clusters, window)
+    #print(clusters)
     # Plot data
     fig = plt.figure()
     plt.title('Coincident events (2D)\nData set(s): %s' % data_sets)
-    plt.hist2d(clusters.wCh_1, clusters.gCh_1, bins=[80, 12],
-               range=[[-0.5, 79.5], [-0.5, 11.5]],
-               norm=LogNorm(), cmap='jet')
+    if window.module_button_16.isChecked():
+        plt.hist2d(clusters.wCh_1, clusters.gCh_1, bins=[64, 12],
+                range=[[-0.5, 63.5], [-0.5, 11.5]],
+                norm=LogNorm(), cmap='jet')
+    elif window.module_button_20.isChecked():
+        plt.hist2d(clusters.wCh_1, clusters.gCh_1, bins=[80, 12],
+                range=[[-0.5, 79.5], [-0.5, 11.5]],
+                norm=LogNorm(), cmap='jet')
+    plt.xlabel('Wire [Channel number]')
     plt.xlabel('Wire [Channel number]')
     plt.ylabel('Grid [Channel number]')
     plt.colorbar()
@@ -41,7 +48,7 @@ def Coincidences_3D_plot(df, window):
     min_count = 0
     max_count = np.inf
     # Initiate 'voxel_id -> (x, y, z)'-mapping
-    MG24_ch_to_coord = get_MG24_to_XYZ_mapping()
+    MG24_ch_to_coord = get_MG24_to_XYZ_mapping(window)
     # Calculate 3D histogram
     H, edges = np.histogramdd(df[['wCh_1', 'gCh_1']].values,
                               bins=(80, 13),
@@ -106,29 +113,26 @@ def Coincidences_3D_plot(df, window):
 # Helper Functions
 # =============================================================================
 
-def get_MG24_to_XYZ_mapping():
+def get_MG24_to_XYZ_mapping(window):
     # Declare voxelspacing in [mm]
     WireSpacing = 10
     LayerSpacing = 23.5
     GridSpacing = 23.5
     # Iterate over all channels and create mapping
-    MG24_ch_to_coord = np.empty((13, 80), dtype='object')
-    for gCh in np.arange(0, 13, 1):
-        for wCh in np.arange(0, 80, 1):
-            x = (wCh // 20) * LayerSpacing
-            y = gCh * GridSpacing
-            z = (wCh % 20) * WireSpacing
-            MG24_ch_to_coord[gCh, wCh] = {'x': x, 'y': y, 'z': z}
+    if window.module_button_20.isChecked():
+        MG24_ch_to_coord = np.empty((13, 80), dtype='object')
+        for gCh in np.arange(0, 13, 1):
+            for wCh in np.arange(0, 80, 1):
+                x = (wCh // 20) * LayerSpacing
+                y = gCh * GridSpacing
+                z = (wCh % 20) * WireSpacing
+                MG24_ch_to_coord[gCh, wCh] = {'x': x, 'y': y, 'z': z}
+    elif window.module_button_16.isChecked():
+        MG24_ch_to_coord = np.empty((13, 64), dtype='object')
+        for gCh in np.arange(0, 13, 1):
+            for wCh in np.arange(0, 64, 1):
+                x = (wCh // 16) * LayerSpacing
+                y = gCh * GridSpacing
+                z = (wCh % 16) * WireSpacing
+                MG24_ch_to_coord[gCh, wCh] = {'x': x, 'y': y, 'z': z}
     return MG24_ch_to_coord
-
-
-
-
-
-
-
-
-
-
-
-

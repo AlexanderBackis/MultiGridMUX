@@ -8,6 +8,8 @@ import re
 import zipfile
 import shutil
 
+from Plotting.Miscellaneous import import_delimiter_table
+
 # =============================================================================
 # Masks
 # =============================================================================
@@ -56,22 +58,22 @@ def cluster_data(data, ADC_to_Ch, window):
             2. Checks what type of word it is (Header, Data or EoE).
             3. When a Header is encountered, 'isOpen' is set to 'True',
                signifying that a new event has been started. Data is then
-               gathered into a single coincident event. 
-            4. When EoE is encountered the event is formed, and timestamp is 
+               gathered into a single coincident event.
+            4. When EoE is encountered the event is formed, and timestamp is
                assigned to it.
             5. After the iteration through data is complete, the dictionary
                containing the coincident events is convereted to a DataFrame.
-           
+
     Args:
         data (tuple)    : Tuple containing data, one word per element.
         ADC_to_Ch (dict): Dictionary containing the delimiters for Channels
         window (window) : Window of GUI
-            
+
     Returns:
         events_df (DataFrame): DataFrame containing one event
                                per row. Each event has information about:
                                "Bus", "Time", "Channel", "ADC".
-        
+
     """
     # Initiate dictionaries to store data
     size = len(data)
@@ -79,12 +81,16 @@ def cluster_data(data, ADC_to_Ch, window):
         attributes = ['wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2',
                       'gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2']
         channels = ['wCh_1', 'wCh_2', 'gCh_1', 'gCh_2']
-    else:
-        attributes = ['gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2',
-                      'wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2',
-                      'wADC_3', 'wADC_4', 'wChADC_3', 'wChADC_4'
-                      ]
-        channels = ['wCh_1', 'wCh_2', 'wCh_3', 'wCh_4', 'gCh_1', 'gCh_2']
+    elif window.MG_24.isChecked():
+        if window.module_button_20.isChecked():
+            attributes = ['wADC_3', 'wADC_4', 'wChADC_3', 'wChADC_4',
+                          'wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2',
+                          'gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2']
+        elif window.module_button_16.isChecked():
+            attributes = ['wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2',
+                          'wADC_3', 'wADC_4', 'wChADC_3', 'wChADC_4',
+                          'gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2']
+        channels = ['wCh_1', 'wCh_2', 'wCh_3', 'wCh_4','gCh_1', 'gCh_2']
     events = {'Module': np.zeros([size], dtype=int),
               'ToF': np.zeros([size], dtype=int)
               }
@@ -209,11 +215,11 @@ def mkdir_p(mypath):
             raise
 
 
-def get_ADC_to_Ch():
+def get_ADC_to_Ch(self):
     # Declare parameters
     layers_dict = {'Wires': 16, 'Grids': 12}
-    delimiters_table = import_delimiter_table()
-    channel_mapping = import_channel_mappings()
+    delimiters_table = import_delimiter_table(self)
+    channel_mapping = import_channel_mappings(self)
     print(channel_mapping['Wires'])
     ADC_to_Ch = {'Wires': {i: -1 for i in range(4096)},
                  'Grids': {i: -1 for i in range(4096)}}
@@ -237,29 +243,33 @@ def get_ADC_to_Ch():
     return ADC_to_Ch
 
 
-def import_channel_mappings():
+def import_channel_mappings(self):
     dirname = os.path.dirname(__file__)
     path = os.path.join(dirname, '../Tables/Grid_Wire_Channel_Mapping.xlsx')
     matrix = pd.read_excel(path).values
     wires, grids = [], []
-    for row in matrix[1:]:
-        wires.append(row[1])
-        if not np.isnan(row[3]):
-            grids.append(np.array(row[3]))
+    if self.module_button_20.isChecked():
+        for row in matrix[1:]:
+            wires.append(row[1])
+            if not np.isnan(row[3]):
+                grids.append(np.array(row[3]))
+    elif self.module_button_16.isChecked():
+        for row in matrix[1:]:
+            if not np.isnan(row[5]):
+                wires.append(row[5])
+            if not np.isnan(row[7]):
+                grids.append(np.array(row[7]))
     return {'Wires': np.array(wires), 'Grids': np.array(grids)}
 
-
+"""
 def import_delimiter_table():
     dirname = os.path.dirname(__file__)
     path = os.path.join(dirname, '../Tables/Histogram_delimiters.xlsx')
     matrix = pd.read_excel(path).values
     wires, grids = [], []
     for row in matrix[1:]:
-        wires.append(np.array([row[0], row[1]]))
-        if not np.isnan(row[2]):
-            grids.append(np.array([row[2], row[3]]))
+        wires.append(np.array([row[0], row[1]])) # 0 1
+        if not np.isnan(row[2]): # 2
+            grids.append(np.array([row[2], row[3]])) # 2 3
     return {'Wires': np.array(wires), 'Grids': np.array(grids)}
-
-
-
-
+"""

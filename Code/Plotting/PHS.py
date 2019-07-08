@@ -72,8 +72,10 @@ def PHS_2D_plot(clusters, window):
     clusters = filter_clusters(clusters, window)
     # Declare parameters
     wg_list = ['w', 'g']
-    limits = [[-0.5, 79.5], [-0.5, 11.5]]
-    bins = [80, 12]
+    """limits = [[-0.5, 79.5], [-0.5, 11.5]]
+    bins = [80, 12]"""
+    limits = [[-0.5, 63.5], [-0.5, 11.5]]
+    bins = [64, 12]
     grids_or_wires = {'w': 'Wires', 'g': 'Grids'}
     # Prepare figure
     fig = plt.figure()
