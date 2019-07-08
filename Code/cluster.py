@@ -86,7 +86,7 @@ def cluster_data(data, ADC_to_Ch, window):
             attributes = ['wADC_3', 'wADC_4', 'wChADC_3', 'wChADC_4',
                           'wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2',
                           'gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2']
-        else: 
+        elif window.module_button_16.isChecked():
             attributes = ['wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2',
                           'wADC_3', 'wADC_4', 'wChADC_3', 'wChADC_4',
                           'gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2']

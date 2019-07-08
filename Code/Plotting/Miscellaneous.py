@@ -66,12 +66,8 @@ def Channels_plot(events, window):
         height = 8
         width = 10
     else:
-        #if window.module_button_16.isChecked():
         attributes = ['wChADC_1', 'wChADC_2', 'gChADC_1',
                       'gChADC_2', 'wChADC_3', 'wChADC_4']
-    #    else:
-#        attributes = ['wChADC_3', 'wChADC_4', 'gChADC_1',
-                     # 'gChADC_2', 'wChADC_1', 'wChADC_2']
         rows = 3
         cols = 2
         height = 12

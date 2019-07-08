@@ -15,9 +15,10 @@ from Plotting.HelperFunctions import filter_clusters
 
 def Coincidences_2D_plot(clusters, window):
     # Declare parameters (added with condition if empty array)
-    data_sets = window.data_sets.splitlines()[0]
+    data_sets = window.data_sets.splitlines()[0] #0
     # Intial filter
     clusters = filter_clusters(clusters, window)
+    #print(clusters)
     # Plot data
     fig = plt.figure()
     plt.title('Coincident events (2D)\nData set(s): %s' % data_sets)
