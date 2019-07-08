@@ -31,7 +31,6 @@ class MainWindow(QMainWindow):
         self.measurement_time = 0
         self.data_sets = ''
         self.Clusters = pd.DataFrame()
-        self.cluster_progress.close()
         self.save_progress.close()
         self.load_progress.close()
         self.show()
@@ -48,10 +47,6 @@ class MainWindow(QMainWindow):
         zipped_folder_paths = QFileDialog.getOpenFileNames()[0]
         ADC_to_Ch = get_ADC_to_Ch(self)
         if len(zipped_folder_paths) > 0:
-            # Initiate loading bar
-            self.cluster_progress.show()
-            self.cluster_progress.setValue(0)
-            self.refresh_window()
             # Iterate through all zipped folders
             for i, zipped_folder_path in enumerate(zipped_folder_paths):
                 # Extract files from zipped file into temporary folder
@@ -76,20 +71,12 @@ class MainWindow(QMainWindow):
                     # Cluster data
                     subset_clusters = cluster_data(data, ADC_to_Ch, self)
                     self.Clusters = self.Clusters.append(subset_clusters)
-                    # Update loading bar
-                    if j % 20 == 1:
-                        progress = ((i/len(zipped_folder_paths))*100
-                                    + (j/(len(zipped_folder_paths)
-                                       * len(file_path)))*100)
-                        self.cluster_progress.setValue(progress)
-                        self.refresh_window()
                 shutil.rmtree(unzipped_folder_path, ignore_errors=True)
                 # Add data set to list of data sets
                 self.data_sets += zipped_folder_path.rsplit('/', 1)[-1]
                 if len(zipped_folder_paths) > 1:
                     self.data_sets += '\n'
             # Close down loading bar and assign data set name
-            self.cluster_progress.close()
             self.data_sets_browser.setText(self.data_sets)
             self.update()
             self.update()

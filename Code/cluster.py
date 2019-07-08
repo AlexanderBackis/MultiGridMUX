@@ -87,8 +87,8 @@ def cluster_data(data, ADC_to_Ch, window):
                           'wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2',
                           'gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2']
         elif window.module_button_16.isChecked():
-            attributes = ['wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2',
-                          'wADC_3', 'wADC_4', 'wChADC_3', 'wChADC_4',
+            attributes = ['wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2', # 16
+                          'wADC_3', 'wADC_4', 'wChADC_3', 'wChADC_4', # 20
                           'gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2']
         channels = ['wCh_1', 'wCh_2', 'wCh_3', 'wCh_4','gCh_1', 'gCh_2']
     events = {'Module': np.zeros([size], dtype=int),

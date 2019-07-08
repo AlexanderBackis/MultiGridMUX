@@ -118,6 +118,7 @@ def get_MG24_to_XYZ_mapping(window):
     WireSpacing = 10
     LayerSpacing = 23.5
     GridSpacing = 23.5
+    y_offset = 50
     # Iterate over all channels and create mapping
     if window.module_button_20.isChecked():
         MG24_ch_to_coord = np.empty((13, 80), dtype='object')
