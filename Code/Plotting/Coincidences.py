@@ -13,29 +13,44 @@ from Plotting.HelperFunctions import filter_clusters
 # =============================================================================
 
 
-def Coincidences_2D_plot(clusters, window):
+def Coincidences_2D_plot(window):
     # Declare parameters (added with condition if empty array)
     data_sets = window.data_sets.splitlines()[0]
+    df_20 = window.Clusters_20_layers
+    df_16 = window.Clusters_16_layers
     # Intial filter
-    clusters = filter_clusters(clusters, window)
-    #print(clusters)
+    clusters_20 = filter_clusters(df_20, window)
+    clusters_16 = filter_clusters(df_16, window)
+    clusters_vec = [clusters_20, clusters_16]
+    clusters_dict = {'ce_20': None, 'ce_16': None}
+    # Select grids with highest collected Charge
+    for clusters, name in zip(clusters_vec, ['ce_20', 'ce_16']):
+        channels_g1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['gCh_m1']
+        channels_w1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['wCh_m1']
+        channels_g2 = clusters[clusters['gADC_m1'] <= clusters['gADC_m2']]['gCh_m2']
+        channels_w2 = clusters[clusters['gADC_m1'] <= clusters['gADC_m2']]['wCh_m1']
+        clusters_dict[name] = channels_g1.append(channels_g2)
+
     # Plot data
-    fig, axs = plt.subplots(nrows=1, ncols=2)#, sharex=True, sharey=True)
+    fig, axs = plt.subplots(nrows=1, ncols=2)
     ax = axs[0]
     ax.set_title('layers: 16')
-    ax.hist2d(clusters.wCh_1, clusters.gCh_1, bins=[64, 12],
+    ax.hist2d(clusters_16.wCh_m1, clusters_16.gCh_m1, bins=[64, 12],
                 range=[[-0.5, 63.5], [-0.5, 11.5]],
                 norm=LogNorm(), cmap='jet')
+    ax.set_xlabel('Wire [Channel number]')
+    ax.set_ylabel('Grid [Channel number]')
 
-    ax = ax[1]
+    ax = axs[1]
     ax.set_title('layers: 20')
-    ax.hist2d(clusters.wCh_1, clusters.gCh_1, bins=[80, 12],
+    ax.hist2d(clusters_20.wCh_m1, clusters_20.gCh_m1, bins=[80, 12],
                 range=[[-0.5, 79.5], [-0.5, 11.5]],
                 norm=LogNorm(), cmap='jet')
-    plt.subtitle('Coincident events (2D)\nData set(s): %s' % data_sets)
-    plt.xlabel('Wire [Channel number]')
-    plt.ylabel('Grid [Channel number]')
-    plt.colorbar()
+    ax.set_xlabel('Wire [Channel number]')
+    ax.set_ylabel('Grid [Channel number]')
+    fig.suptitle('Coincident events (2D) -- Data set(s): %s' % data_sets)
+    plt.subplots_adjust(wspace=0.2)
+    #plt.colorbar()
 
     return fig
 
@@ -142,12 +157,3 @@ def get_MG24_to_XYZ_mapping(window):
                 z = (wCh % 16) * WireSpacing
                 MG24_ch_to_coord_16[gCh, wCh] = {'x': x, 'y': y, 'z': z}
     return MG24_ch_to_coord_20, MG24_ch_to_coord_16
-
-
-# select grid with largest charge
-def select_grid():
-    data_sets = pd.DataFrame({'grid_20': [4, 7, 3], 'grid_16': [1, 8, 2], 'grid_20_channels': [0, 1, 5]})
-    large_charge = data_sets[data_sets['grid_20'] > data_sets['grid_16']]
-    grid_20_large = large_charge[large_charge['grid_20'] > large_charge['grid_16']]['grid_16']
-    grid_16_large = large_charge[large_charge['grid_20'] < large_charge['grid_16']]['grid_16']
-    return grid_20_large, grid_16_large

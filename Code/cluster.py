@@ -81,8 +81,8 @@ def cluster_data(data, ADC_to_Ch_dict, window):
                   'wChADC_m2': np.zeros([size], dtype=int),
                   'gADC_m1': np.zeros([size], dtype=int),
                   'gADC_m2': np.zeros([size], dtype=int),
-                  'gCh_ADC_m1': np.zeros([size], dtype=int),
-                  'gCh_ADC_m2': np.zeros([size], dtype=int),
+                  'gChADC_m1': np.zeros([size], dtype=int),
+                  'gChADC_m2': np.zeros([size], dtype=int),
                   'wCh_m1': np.zeros([size], dtype=int),
                   'wCh_m2': np.zeros([size], dtype=int),
                   'gCh_m1': np.zeros([size], dtype=int),
@@ -97,7 +97,7 @@ def cluster_data(data, ADC_to_Ch_dict, window):
     channels = {'wChADC_m1': 'wCh_m1',
                 'wChADC_m2': 'wCh_m2',
                 'gChADC_m1': 'gCh_m1',
-                'gChADC_m1': 'gCh_m1'
+                'gChADC_m2': 'gCh_m2'
                 }
     events_20_layers = create_events_dictionary(size)
     events_16_layers = create_events_dictionary(size)
@@ -114,31 +114,31 @@ def cluster_data(data, ADC_to_Ch_dict, window):
             attribute = attributes[Channel]
             # Extract data and insert into our different detectors
             if 0 <= Channel <= 1:
-                events_20_layers[attribute] = ADC
+                events_20_layers[attribute][index] = ADC
             elif 2 <= Channel <= 3:
-                events_20_layers[attribute] = ADC
+                events_20_layers[attribute][index] = ADC
                 Ch_ID = channels[attribute]
-                physical_Ch = ADC_to_Ch_dict['20_layers']['w'][ADC]
+                physical_Ch = ADC_to_Ch_dict['20_layers']['Wires'][ADC]
                 events_20_layers[Ch_ID][index] = physical_Ch
             elif 4 <= Channel <= 5:
-                events_16_layers[attribute] = ADC
+                events_16_layers[attribute][index] = ADC
             elif 6 <= Channel <= 7:
-                events_16_layers[attribute] = ADC
+                events_16_layers[attribute][index] = ADC
                 Ch_ID = channels[attribute]
-                physical_Ch = ADC_to_Ch_dict['16_layers']['w'][ADC]
+                physical_Ch = ADC_to_Ch_dict['16_layers']['Wires'][ADC]
                 events_16_layers[Ch_ID][index] = physical_Ch
             elif 8 <= Channel <= 9:
-                events_20_layers[attribute] = ADC
-                events_16_layers[attribute] = ADC
+                events_20_layers[attribute][index] = ADC
+                events_16_layers[attribute][index] = ADC
             else:
                 Ch_ID = channels[attribute]
                 # Assign 20 layers
-                events_20_layers[attribute] = ADC
-                physical_Ch = ADC_to_Ch_dict['20_layers']['g'][ADC]
+                events_20_layers[attribute][index] = ADC
+                physical_Ch = ADC_to_Ch_dict['20_layers']['Grids'][ADC]
                 events_20_layers[Ch_ID][index] = physical_Ch
                 # Assign 16 layers
-                events_16_layers[attribute] = ADC
-                physical_Ch = ADC_to_Ch_dict['16_layers']['g'][ADC]
+                events_16_layers[attribute][index] = ADC
+                physical_Ch = ADC_to_Ch_dict['16_layers']['Grids'][ADC]
                 events_16_layers[Ch_ID][index] = physical_Ch
         elif ((word & SignatureMask) == EoE):
             # Extract values
@@ -147,7 +147,6 @@ def cluster_data(data, ADC_to_Ch_dict, window):
             events_16_layers['ToF'][index] = ToF
             # Increase index
             index += 1
-
     #Remove empty elements and save in DataFrame for easier analysis
     for key in events_20_layers:
         events_20_layers[key] = events_20_layers[key][0:index]
@@ -155,6 +154,8 @@ def cluster_data(data, ADC_to_Ch_dict, window):
         events_16_layers[key] = events_16_layers[key][0:index]
     events_20_layers_df = pd.DataFrame(events_20_layers)
     events_16_layers_df = pd.DataFrame(events_16_layers)
+    #print(events_16_layers_df)
+    #print(events_20_layers_df)
     return events_20_layers_df, events_16_layers_df
 
 

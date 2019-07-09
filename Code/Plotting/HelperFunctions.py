@@ -9,21 +9,33 @@ import pandas as pd
 
 def filter_clusters(clusters, window):
     # Declare parameters
-    parameters = {'wADC_1': [window.wADC_min.value(),
-                             window.wADC_max.value(),
-                             window.wADC_filter.isChecked()],
-                  'gADC_1': [window.gADC_min.value(),
-                             window.gADC_max.value(),
-                             window.gADC_filter.isChecked()],
+    parameters = {'wADC_m1': [window.wADC_min.value(),
+                              window.wADC_max.value(),
+                              window.wADC_filter.isChecked()],
+                  'wADC_m2': [window.wADC_min.value(),
+                              window.wADC_max.value(),
+                              window.wADC_filter.isChecked()],
+                  'gADC_m1': [window.gADC_min.value(),
+                              window.gADC_max.value(),
+                              window.gADC_filter.isChecked()],
+                  'gADC_m2': [window.gADC_min.value(),
+                              window.gADC_max.value(),
+                              window.gADC_filter.isChecked()],
                   'ToF':  [float(window.ToF_min.text()),
                            float(window.ToF_max.text()),
                            window.ToF_filter.isChecked()],
-                  'wCh_1': [window.wCh_min.value(),
-                            window.wCh_max.value(),
-                            window.wCh_filter.isChecked()],
-                  'gCh_1': [window.gCh_min.value(),
-                            window.gCh_max.value(),
-                            window.gCh_filter.isChecked()],
+                  'wCh_m1': [window.wCh_min.value(),
+                             window.wCh_max.value(),
+                             window.wCh_filter.isChecked()],
+                  'wCh_m2': [window.wCh_min.value(),
+                             window.wCh_max.value(),
+                             window.wCh_filter.isChecked()],
+                  'gCh_m1': [window.gCh_min.value(),
+                             window.gCh_max.value(),
+                             window.gCh_filter.isChecked()],
+                  'gCh_m2': [window.gCh_min.value(),
+                             window.gCh_max.value(),
+                             window.gCh_filter.isChecked()],
                   }
     # Only include the filters that we want to use
     ce_red = clusters
@@ -46,49 +58,31 @@ def import_delimiter_table():
     indices = [[0, 1, 2, 3], [4, 5, 6, 7]]
     detectors = ['20_layers', '16_layers']
     delimiters_dictionary = {'20_layers': None, '16_layers': None}
-    for detector, (a, b, c, d) in detectors, indices:
+    for detector, (a, b, c, d) in zip(detectors, indices):
         wires, grids = [], []
         for row in matrix[1:]:
-            wires.append(np.array([row[a], row[b]]))  # 0 1
+            if not np.isnan(row[a]):
+                wires.append(np.array([row[a], row[b]]))  # 0 1
             if not np.isnan(row[c]):  # 2
                 grids.append(np.array([row[c], row[d]]))  # 2 3
         delimiters_dictionary[detector] = {'Wires': np.array(wires),
                                            'Grids': np.array(grids)}
     return delimiters_dictionary
 
-"""
-def import_delimiter_table(self):
-    dirname = os.path.dirname(__file__)
-    path = os.path.join(dirname, '../../Tables/Histogram_delimiters.xlsx')
-    matrix = pd.read_excel(path).values
-    for
-    wires, grids = [], []
-    for row in matrix[1:]:
-        wires.append(np.array([row[0], row[1]]))
-        if not np.isnan(row[2]):
-            grids.append(np.array([row[2], row[3]]))
-    for row in matrix[1:]:
-        if not np.isnan(row[4]):
-            wires.append(np.array([row[4], row[5]]))
-        if not np.isnan(row[6]):
-            grids.append(np.array([row[6], row[7]]))
-    return {'Wires': np.array(wires), 'Grids': np.array(grids)}
-"""
-
-
 def import_channel_mappings():
     # Import excel files
     dirname = os.path.dirname(__file__)
-    path = os.path.join(dirname, '../Tables/Grid_Wire_Channel_Mapping.xlsx')
+    path = os.path.join(dirname, '../../Tables/Grid_Wire_Channel_Mapping.xlsx')
     matrix = pd.read_excel(path).values
     # Save channel mappings for 16 and 20 layers in dictionary
     indices = [[1, 3], [5, 7]]
     detectors = ['20_layers', '16_layers']
     channel_mapping_table = {'20_layers': None, '16_layers': None}
-    for detector, (a, b) in detectors, indices:
+    for detector, (a, b) in zip(detectors, indices):
         wires, grids = [], []
         for row in matrix[1:]:
-            wires.append(row[a])
+            if not np.isnan(row[a]):
+                wires.append(np.array(row[a]))
             if not np.isnan(row[b]):
                 grids.append(np.array(row[b]))
         channel_mapping_table[detector] = {'Wires': np.array(wires),

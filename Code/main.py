@@ -40,7 +40,7 @@ class MainWindow(QMainWindow):
     # =========================================================================
     # File handling
     # =========================================================================
-
+    """
     def cluster_action(self):
         # Declare parameters
         file_paths = QFileDialog.getOpenFileNames()[0]
@@ -61,6 +61,35 @@ class MainWindow(QMainWindow):
             # Add data set name
             self.data_sets += file_path.rsplit('/', 1)[-1]
             self.data_sets_browser.setText(self.data_sets)
+        """
+
+    def cluster_action(self):
+        # Declare parameters
+        folder_path = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        ADC_to_Ch_dict = get_ADC_to_Ch_dict()
+        if folder_path != '':
+            # Iterate through all files in folder
+            file_names = [f for f in os.listdir(folder_path) if f[-4:] == '.bin']
+            file_paths = append_folder_and_files(folder_path + '/', file_names)
+            for file_path in file_paths:
+                # Import data
+                with open(file_path, mode='rb') as bin_file:
+                    content = bin_file.read()
+                    data = struct.unpack('I' * (len(content)//4), content)
+                # Cluster data
+                subset_clusters = cluster_data(data, ADC_to_Ch_dict, self)
+                subset_20_layers, subset_16_layers = subset_clusters
+                self.Clusters_20_layers = self.Clusters_20_layers.append(subset_20_layers)
+                self.Clusters_16_layers = self.Clusters_20_layers.append(subset_16_layers)
+            # Add data set to list of data sets
+            self.data_sets += folder_path.rsplit('/', 1)[-1]
+            # Assign data set name
+            self.data_sets_browser.setText(self.data_sets)
+            self.update()
+            self.update()
+            self.app.processEvents()
+            self.update()
+            self.refresh_window()
 
     def save_action(self):
         save_path = QFileDialog.getSaveFileName()[0]

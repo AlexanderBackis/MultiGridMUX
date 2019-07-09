@@ -60,10 +60,9 @@ def Channels_plot(events, window):
                 plt.axvline(small_delimiter, color='blue', zorder=2)
 
     # Declare parameters
-    attributes = ['wChADC_1', 'wChADC_2', 'gChADC_1',
-                  'gChADC_2', 'wChADC_3', 'wChADC_4']
-    rows = 3
-    cols = 2
+    attributes_20 = ['wChADC_m1', 'wChADC_m2','gChADC_m1','gChADC_m2']
+    rows = 2
+    cols = 3
     height = 12
     width = 10
     number_bins = int(window.chBins.text())
@@ -75,8 +74,8 @@ def Channels_plot(events, window):
     title = 'Channels (1D)\n(%s, ...)' % window.data_sets.splitlines()[0]
     fig.suptitle(title, x=0.5, y=1.03)
     # Plot figure
-    for i, attribute in enumerate(attributes):
-        events_attribute = events[attribute]
+    for i, attribute in enumerate(attributes_20):
+        events_attribute_20 = events[attribute]
         plt.subplot(rows, cols, i+1)
         sub_title = attribute
         if sub_title[0] == 'g':
