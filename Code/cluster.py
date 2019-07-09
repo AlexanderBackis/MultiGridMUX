@@ -77,20 +77,10 @@ def cluster_data(data, ADC_to_Ch, window):
     """
     # Initiate dictionaries to store data
     size = len(data)
-    if window.MG_CNCS.isChecked():
-        attributes = ['wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2',
-                      'gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2']
-        channels = ['wCh_1', 'wCh_2', 'gCh_1', 'gCh_2']
-    elif window.MG_24.isChecked():
-        if window.module_button_20.isChecked():
-            attributes = ['wADC_3', 'wADC_4', 'wChADC_3', 'wChADC_4',
-                          'wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2',
-                          'gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2']
-        elif window.module_button_16.isChecked():
-            attributes = ['wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2', # 16
-                          'wADC_3', 'wADC_4', 'wChADC_3', 'wChADC_4', # 20
-                          'gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2']
-        channels = ['wCh_1', 'wCh_2', 'wCh_3', 'wCh_4','gCh_1', 'gCh_2']
+    attributes = ['wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2', # 16
+                  'wADC_3', 'wADC_4', 'wChADC_3', 'wChADC_4', # 20
+                  'gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2']
+    channels = ['wCh_1', 'wCh_2', 'wCh_3', 'wCh_4','gCh_1', 'gCh_2']
     events = {'Module': np.zeros([size], dtype=int),
               'ToF': np.zeros([size], dtype=int)
               }
@@ -200,21 +190,6 @@ def load_data(path, window):
 # Helper Functions
 # =============================================================================
 
-def mkdir_p(mypath):
-    '''Creates a directory. equivalent to using mkdir -p on the command line'''
-
-    from errno import EEXIST
-    from os import makedirs, path
-
-    try:
-        makedirs(mypath)
-    except OSError as exc:
-        if exc.errno == EEXIST and path.isdir(mypath):
-            pass
-        else:
-            raise
-
-
 def get_ADC_to_Ch(self):
     # Declare parameters
     layers_dict = {'Wires': 16, 'Grids': 12}
@@ -248,28 +223,13 @@ def import_channel_mappings(self):
     path = os.path.join(dirname, '../Tables/Grid_Wire_Channel_Mapping.xlsx')
     matrix = pd.read_excel(path).values
     wires, grids = [], []
-    if self.module_button_20.isChecked():
-        for row in matrix[1:]:
-            wires.append(row[1])
-            if not np.isnan(row[3]):
-                grids.append(np.array(row[3]))
-    elif self.module_button_16.isChecked():
-        for row in matrix[1:]:
-            if not np.isnan(row[5]):
-                wires.append(row[5])
-            if not np.isnan(row[7]):
-                grids.append(np.array(row[7]))
-    return {'Wires': np.array(wires), 'Grids': np.array(grids)}
-
-"""
-def import_delimiter_table():
-    dirname = os.path.dirname(__file__)
-    path = os.path.join(dirname, '../Tables/Histogram_delimiters.xlsx')
-    matrix = pd.read_excel(path).values
-    wires, grids = [], []
     for row in matrix[1:]:
-        wires.append(np.array([row[0], row[1]])) # 0 1
-        if not np.isnan(row[2]): # 2
-            grids.append(np.array([row[2], row[3]])) # 2 3
+        if not np.isnan(row[1]):
+            wires.append(np.array(row[1]))
+        if not np.isnan(row[5]):
+            wires.append(np.array(row[5]))
+        if not np.isnan(row[3]):
+            grids.append(np.array(row[3]))
+        if not np.isnan(row[7]):
+            grids.append(np.array(row[7]))
     return {'Wires': np.array(wires), 'Grids': np.array(grids)}
-"""

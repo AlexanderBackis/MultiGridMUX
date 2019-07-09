@@ -15,25 +15,28 @@ from Plotting.HelperFunctions import filter_clusters
 
 def Coincidences_2D_plot(clusters, window):
     # Declare parameters (added with condition if empty array)
-    data_sets = window.data_sets.splitlines()[0] #0
+    data_sets = window.data_sets.splitlines()[0]
     # Intial filter
     clusters = filter_clusters(clusters, window)
     #print(clusters)
     # Plot data
-    fig = plt.figure()
-    plt.title('Coincident events (2D)\nData set(s): %s' % data_sets)
-    if window.module_button_16.isChecked():
-        plt.hist2d(clusters.wCh_1, clusters.gCh_1, bins=[64, 12],
+    fig, axs = plt.subplots(nrows=1, ncols=2)#, sharex=True, sharey=True)
+    ax = axs[0]
+    ax.set_title('layers: 16')
+    ax.hist2d(clusters.wCh_1, clusters.gCh_1, bins=[64, 12],
                 range=[[-0.5, 63.5], [-0.5, 11.5]],
                 norm=LogNorm(), cmap='jet')
-    elif window.module_button_20.isChecked():
-        plt.hist2d(clusters.wCh_1, clusters.gCh_1, bins=[80, 12],
+
+    ax = ax[1]
+    ax.set_title('layers: 20')
+    ax.hist2d(clusters.wCh_1, clusters.gCh_1, bins=[80, 12],
                 range=[[-0.5, 79.5], [-0.5, 11.5]],
                 norm=LogNorm(), cmap='jet')
-    plt.xlabel('Wire [Channel number]')
+    plt.subtitle('Coincident events (2D)\nData set(s): %s' % data_sets)
     plt.xlabel('Wire [Channel number]')
     plt.ylabel('Grid [Channel number]')
     plt.colorbar()
+
     return fig
 
 
@@ -118,22 +121,33 @@ def get_MG24_to_XYZ_mapping(window):
     WireSpacing = 10
     LayerSpacing = 23.5
     GridSpacing = 23.5
-    y_offset = 50
+    y_offset = 100
     # Iterate over all channels and create mapping
-    if window.module_button_20.isChecked():
-        MG24_ch_to_coord = np.empty((13, 80), dtype='object')
+    grid_20_layers = select_grid()[0]
+    grid_16_layers = select_grid()[1]
+    if grid_20_layers:
+        MG24_ch_to_coord_20 = np.empty((13, 80), dtype='object')
         for gCh in np.arange(0, 13, 1):
             for wCh in np.arange(0, 80, 1):
                 x = (wCh // 20) * LayerSpacing
                 y = gCh * GridSpacing
                 z = (wCh % 20) * WireSpacing
-                MG24_ch_to_coord[gCh, wCh] = {'x': x, 'y': y, 'z': z}
-    elif window.module_button_16.isChecked():
-        MG24_ch_to_coord = np.empty((13, 64), dtype='object')
+                MG24_ch_to_coord_20[gCh, wCh] = {'x': x, 'y': y, 'z': z}
+    elif grid_16_layers:
+        MG24_ch_to_coord_16 = np.empty((13, 64), dtype='object')
         for gCh in np.arange(0, 13, 1):
             for wCh in np.arange(0, 64, 1):
                 x = (wCh // 16) * LayerSpacing
-                y = gCh * GridSpacing
+                y = gCh * GridSpacing + y_offset
                 z = (wCh % 16) * WireSpacing
-                MG24_ch_to_coord[gCh, wCh] = {'x': x, 'y': y, 'z': z}
-    return MG24_ch_to_coord
+                MG24_ch_to_coord_16[gCh, wCh] = {'x': x, 'y': y, 'z': z}
+    return MG24_ch_to_coord_20, MG24_ch_to_coord_16
+
+
+# select grid with largest charge
+def select_grid():
+    data_sets = pd.DataFrame({'grid_20': [4, 7, 3], 'grid_16': [1, 8, 2], 'grid_20_channels': [0, 1, 5]})
+    large_charge = data_sets[data_sets['grid_20'] > data_sets['grid_16']]
+    grid_20_large = large_charge[large_charge['grid_20'] > large_charge['grid_16']]['grid_16']
+    grid_16_large = large_charge[large_charge['grid_20'] < large_charge['grid_16']]['grid_16']
+    return grid_20_large, grid_16_large

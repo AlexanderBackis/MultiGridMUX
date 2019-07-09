@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
 
     def PHS_2D_action(self):
         if self.data_sets != '':
-            fig = PHS_2D_plot(self.Clusters, self)
+            fig = PHS_2D_plot(self)
             fig.show()
 
     def ToF_action(self):
@@ -106,7 +106,7 @@ class MainWindow(QMainWindow):
 
     def Coincidences_2D_action(self):
         if self.data_sets != '':
-            fig = Coincidences_2D_plot(self.Clusters, self)
+            fig = Coincidences_2D_plot(self)
             fig.show()
 
     def Coincidences_3D_action(self):
@@ -116,7 +116,7 @@ class MainWindow(QMainWindow):
     def help_action(self):
         print("HELP!!!!")
         gethelp()
-
+    """
     def select_module_action(self):
         if (self.module_button_16.isChecked() == True and self.module_button_20.isChecked() == True):
             print("selecting both modules")
@@ -124,7 +124,7 @@ class MainWindow(QMainWindow):
             print("selecting module 1, 16 by 4")
         elif self.module_button_20.isChecked():
             print("selecting module 2, 20 by 4") == True
-
+    """
 
     # ========================================================================
     # Helper Functions
@@ -144,8 +144,8 @@ class MainWindow(QMainWindow):
         self.Channels_button.clicked.connect(self.Channels_action)
         self.ADC_button.clicked.connect(self.ADC_action)
         # Miscellaneous
-        self.toogle_MG_24_MG_CNCS()
-        self.select_modules()
+        #self.toogle_MG_24_MG_CNCS()
+        #self.select_modules()
         # Help
         self.help_button.clicked.connect(self.help_action)
 
@@ -158,12 +158,14 @@ class MainWindow(QMainWindow):
         self.app.processEvents()
         self.app.processEvents()
 
+    """
     def toogle_MG_24_MG_CNCS(self):
         self.MG_24.toggled.connect(
             lambda checked: checked and self.MG_CNCS.setChecked(False))
         self.MG_CNCS.toggled.connect(
             lambda checked: checked and self.MG_24.setChecked(False))
-
+    """
+    """
     def select_modules(self):
         self.module_button_16.toggled.connect(self.select_module_action)
         self.module_button_20.toggled.connect(self.select_module_action)
@@ -171,8 +173,7 @@ class MainWindow(QMainWindow):
                 lambda checked: not checked and self.module_button_20.setChecked(True))
         self.module_button_20.toggled.connect(
                 lambda checked: not checked and self.module_button_16.setChecked(True))
-
-
+    """
 
 
 # =============================================================================
@@ -193,11 +194,9 @@ def mkdir_p(mypath):
         else:
             raise
 
-
 def append_folder_and_files(folder, files):
     folder_vec = np.array(len(files)*[folder])
     return np.core.defchararray.add(folder_vec, files)
-
 
 # =============================================================================
 # Start GUI
