@@ -6,7 +6,7 @@ import plotly.graph_objs as go
 import pandas as pd
 import plotly.io as pio
 import os
-from HelperFunctions import import_delimiter_table
+from Plotting.HelperFunctions import import_delimiter_table
 
 
 # =============================================================================
