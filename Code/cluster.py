@@ -8,8 +8,6 @@ import re
 import zipfile
 import shutil
 
-from Plotting.Miscellaneous import import_delimiter_table
-
 # =============================================================================
 # Masks
 # =============================================================================
@@ -50,7 +48,7 @@ ExTsShift        = 30
 # CLUSTER DATA
 # =============================================================================
 
-def cluster_data(data, ADC_to_Ch, window):
+def cluster_data(data, ADC_to_Ch_dict, window):
     """ Clusters the imported data and stores into a data frame.
 
         Does this in the following fashion:
@@ -75,58 +73,89 @@ def cluster_data(data, ADC_to_Ch, window):
                                "Bus", "Time", "Channel", "ADC".
 
     """
+    def create_events_dictionary(size):
+        events = {'ToF': np.zeros([size], dtype=int),
+                  'wADC_m1': np.zeros([size], dtype=int),
+                  'wADC_m2': np.zeros([size], dtype=int),
+                  'wChADC_m1': np.zeros([size], dtype=int),
+                  'wChADC_m2': np.zeros([size], dtype=int),
+                  'gADC_m1': np.zeros([size], dtype=int),
+                  'gADC_m2': np.zeros([size], dtype=int),
+                  'gCh_ADC_m1': np.zeros([size], dtype=int),
+                  'gCh_ADC_m2': np.zeros([size], dtype=int),
+                  'wCh_m1': np.zeros([size], dtype=int),
+                  'wCh_m2': np.zeros([size], dtype=int),
+                  'gCh_m1': np.zeros([size], dtype=int),
+                  'gCh_m2': np.zeros([size], dtype=int)
+                  }
+        return events
     # Initiate dictionaries to store data
     size = len(data)
-    attributes = ['wADC_1', 'wADC_2', 'wChADC_1', 'wChADC_2',
-                  'wADC_3', 'wADC_4', 'wChADC_3', 'wChADC_4',
-                  'gADC_1', 'gADC_2', 'gChADC_1', 'gChADC_2']
-    channels = ['wCh_1', 'wCh_2', 'wCh_3', 'wCh_4', 'gCh_1', 'gCh_2']
-    events = {'Module': np.zeros([size], dtype=int),
-              'ToF': np.zeros([size], dtype=int)
-              }
-    for attribute in attributes:
-        events.update({attribute: np.zeros([size], dtype=int)})
-    for channel in channels:
-        events.update({channel: np.zeros([size], dtype=int)})
-    # Declare parameters
-    wires_or_grids = {'w': 'Wires', 'g': 'Grids'}
+    attributes = ['wADC_m1', 'wADC_m2', 'wChADC_m1', 'wChADC_m2',
+                  'wADC_m1', 'wADC_m2', 'wChADC_m1', 'wChADC_m2',
+                  'gADC_m1', 'gADC_m2', 'gChADC_m1', 'gChADC_m2']
+    channels = {'wChADC_m1': 'wCh_m1',
+                'wChADC_m2': 'wCh_m2',
+                'gChADC_m1': 'gCh_m1',
+                'gChADC_m1': 'gCh_m1'
+                }
+    events_20_layers = create_events_dictionary(size)
+    events_16_layers = create_events_dictionary(size)
     #Declare temporary variables
-    isOpen = False
     index = 0
     #Four possibilities in each word: Header, DataEvent, DataExTs or EoE.
     for i, word in enumerate(data):
         if (word & SignatureMask) == Header:
-            # Extract values
-            Module = (word & ModuleMask) >> ModuleShift
-            events['Module'][index] = Module
-            # Adjust temporary variables
-            isOpen = True
-        elif ((word & SignatureMask) == Data) & isOpen:
+            pass
+        elif ((word & SignatureMask) == Data):
             # Extract values
             ADC = (word & ADCMask)
             Channel = ((word & ChannelMask) >> ChannelShift)
             attribute = attributes[Channel]
-            events[attribute][index] = ADC
-            # Check if wire or grid
-            w_or_g = wires_or_grids[attribute[:1]]
-            # Get discreet channel
-            if len(attribute) == 8:
-                physical_Ch = ADC_to_Ch[w_or_g][ADC]
-                channel_attribute = attribute[0:3] + attribute[-2:]
-                events[channel_attribute][index] = physical_Ch
-        elif ((word & SignatureMask) == EoE) & isOpen:
+            # Extract data and insert into our different detectors
+            if 0 <= Channel <= 1:
+                events_20_layers[attribute] = ADC
+            elif 2 <= Channel <= 3:
+                events_20_layers[attribute] = ADC
+                Ch_ID = channels[attribute]
+                physical_Ch = ADC_to_Ch_dict['20_layers']['w'][ADC]
+                events_20_layers[Ch_ID][index] = physical_Ch
+            elif 4 <= Channel <= 5:
+                events_16_layers[attribute] = ADC
+            elif 6 <= Channel <= 7:
+                events_16_layers[attribute] = ADC
+                Ch_ID = channels[attribute]
+                physical_Ch = ADC_to_Ch_dict['16_layers']['w'][ADC]
+                events_16_layers[Ch_ID][index] = physical_Ch
+            elif 8 <= Channel <= 9:
+                events_20_layers[attribute] = ADC
+                events_16_layers[attribute] = ADC
+            else:
+                Ch_ID = channels[attribute]
+                # Assign 20 layers
+                events_20_layers[attribute] = ADC
+                physical_Ch = ADC_to_Ch_dict['20_layers']['g'][ADC]
+                events_20_layers[Ch_ID][index] = physical_Ch
+                # Assign 16 layers
+                events_16_layers[attribute] = ADC
+                physical_Ch = ADC_to_Ch_dict['16_layers']['g'][ADC]
+                events_16_layers[Ch_ID][index] = physical_Ch
+        elif ((word & SignatureMask) == EoE):
             # Extract values
             ToF = (word & TimeStampMask)
-            events['ToF'][index] = ToF
-            # Increase index and reset temporary variables
-            isOpen = False
+            events_20_layers['ToF'][index] = ToF
+            events_16_layers['ToF'][index] = ToF
+            # Increase index
             index += 1
 
     #Remove empty elements and save in DataFrame for easier analysis
-    for key in events:
-        events[key] = events[key][0:index]
-    events_df = pd.DataFrame(events)
-    return events_df
+    for key in events_20_layers:
+        events_20_layers[key] = events_20_layers[key][0:index]
+    for key in events_16_layers:
+        events_16_layers[key] = events_16_layers[key][0:index]
+    events_20_layers_df = pd.DataFrame(events_20_layers)
+    events_16_layers_df = pd.DataFrame(events_16_layers)
+    return events_20_layers_df, events_16_layers_df
 
 
 # =============================================================================
@@ -203,63 +232,3 @@ def mkdir_p(mypath):
             pass
         else:
             raise
-
-
-def get_ADC_to_Ch(self):
-    # Declare parameters
-    layers_dict = {'Wires': 16, 'Grids': 12}
-    delimiters_table = import_delimiter_table(self)
-    channel_mapping = import_channel_mappings(self)
-    print(channel_mapping['Wires'])
-    ADC_to_Ch = {'Wires': {i: -1 for i in range(4096)},
-                 'Grids': {i: -1 for i in range(4096)}}
-    for key, delimiters in delimiters_table.items():
-        layers = layers_dict[key]
-        print(key)
-        for i, (start, stop) in enumerate(delimiters):
-            # Get channel mapping and delimiters
-            channel = channel_mapping[key][i]
-            small_delimiters = np.linspace(start, stop, layers+1)
-            # Iterate through small delimiters
-            previous_value = small_delimiters[0]
-            for j, value in enumerate(small_delimiters[1:]):
-                channel = channel_mapping[key][i*layers+j]
-                print('i: %s, Ch: %s' % (str(i*layers+j), str(channel)))
-                start, stop = int(round(previous_value)), int(round(value))
-                # Assign ADC->Ch mapping for all values within interval
-                for k in np.arange(start, stop, 1):
-                    ADC_to_Ch[key][k] = channel
-                previous_value = value
-    return ADC_to_Ch
-
-
-def import_channel_mappings(self):
-    dirname = os.path.dirname(__file__)
-    path = os.path.join(dirname, '../Tables/Grid_Wire_Channel_Mapping.xlsx')
-    matrix = pd.read_excel(path).values
-    wires, grids = [], []
-    if self.module_button_20.isChecked():
-        for row in matrix[1:]:
-            wires.append(row[1])
-            if not np.isnan(row[3]):
-                grids.append(np.array(row[3]))
-    elif self.module_button_16.isChecked():
-        for row in matrix[1:]:
-            if not np.isnan(row[5]):
-                wires.append(row[5])
-            if not np.isnan(row[7]):
-                grids.append(np.array(row[7]))
-    return {'Wires': np.array(wires), 'Grids': np.array(grids)}
-
-"""
-def import_delimiter_table():
-    dirname = os.path.dirname(__file__)
-    path = os.path.join(dirname, '../Tables/Histogram_delimiters.xlsx')
-    matrix = pd.read_excel(path).values
-    wires, grids = [], []
-    for row in matrix[1:]:
-        wires.append(np.array([row[0], row[1]])) # 0 1
-        if not np.isnan(row[2]): # 2
-            grids.append(np.array([row[2], row[3]])) # 2 3
-    return {'Wires': np.array(wires), 'Grids': np.array(grids)}
-"""

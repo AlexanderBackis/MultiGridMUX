@@ -10,11 +10,12 @@ import numpy as np
 import struct
 import pandas as pd
 
-from cluster import cluster_data, save_data, load_data, get_ADC_to_Ch
+from cluster import cluster_data, save_data, load_data
 from Plotting.PHS import PHS_1D_plot, PHS_2D_plot
 from Plotting.Coincidences import Coincidences_2D_plot, Coincidences_3D_plot
 from Plotting.Miscellaneous import ToF_histogram, Channels_plot, ADC_plot
 from Plotting.HelpMessage import gethelp
+from Plotting.HelperFunctions import get_ADC_to_Ch_dict
 
 # =============================================================================
 # Windows
@@ -30,8 +31,8 @@ class MainWindow(QMainWindow):
         self.app = app
         self.measurement_time = 0
         self.data_sets = ''
-        self.Clusters = pd.DataFrame()
-        self.cluster_progress.close()
+        self.Clusters_20_layers = pd.DataFrame()
+        self.Clusters_16_layers = pd.DataFrame()
         self.save_progress.close()
         self.load_progress.close()
         self.show()
@@ -43,61 +44,24 @@ class MainWindow(QMainWindow):
 
     def cluster_action(self):
         # Declare parameters
-        dirname = os.path.dirname(__file__)
-        unzipped_folder_path = os.path.join(dirname, '../temp_folder/')
-        zipped_folder_paths = QFileDialog.getOpenFileNames()[0]
-        ADC_to_Ch = get_ADC_to_Ch(self)
-        if len(zipped_folder_paths) > 0:
-            # Initiate loading bar
-            self.cluster_progress.show()
-            self.cluster_progress.setValue(0)
-            self.refresh_window()
-            # Iterate through all zipped folders
-            for i, zipped_folder_path in enumerate(zipped_folder_paths):
-                # Extract files from zipped file into temporary folder
-                mkdir_p(unzipped_folder_path)
-                with zipfile.ZipFile(zipped_folder_path, "r") as zip_ref:
-                    zip_ref.extractall(unzipped_folder_path)
-                # Iterate through all files in unzipped folder and cluster
-                file_names = os.listdir(unzipped_folder_path)
-                if (len(file_names) == 1) and file_names[0][:-4] != '.bin':
-                    new_folder = unzipped_folder_path + file_names[0] + '/'
-                    file_names = os.listdir(new_folder)
-                    file_paths = append_folder_and_files(new_folder,
-                                                         file_names)
-                else:
-                    file_paths = append_folder_and_files(unzipped_folder_path,
-                                                         file_names)
-                for j, file_path in enumerate(file_paths):
-                    # Import data
-                    with open(file_path, mode='rb') as bin_file:
-                        content = bin_file.read()
-                        data = struct.unpack('I' * (len(content)//4), content)
-                        print('Number of 14 packs of words')
-                        print(len(content)/(4*14))
-                    # Cluster data
-                    subset_clusters = cluster_data(data, ADC_to_Ch, self)
-                    self.Clusters = self.Clusters.append(subset_clusters)
-                    # Update loading bar
-                    if j % 20 == 1:
-                        progress = ((i/len(zipped_folder_paths))*100
-                                    + (j/(len(zipped_folder_paths)
-                                       * len(file_path)))*100)
-                        self.cluster_progress.setValue(progress)
-                        self.refresh_window()
-                shutil.rmtree(unzipped_folder_path, ignore_errors=True)
-                # Add data set to list of data sets
-                self.data_sets += zipped_folder_path.rsplit('/', 1)[-1]
-                if len(zipped_folder_paths) > 1:
-                    self.data_sets += '\n'
-            # Close down loading bar and assign data set name
-            self.cluster_progress.close()
+        file_paths = QFileDialog.getOpenFileNames()[0]
+        ADC_to_Ch_dict = get_ADC_to_Ch_dict()
+        if len(file_paths) > 0:
+            # Iterate through all files
+            for i, file_path in enumerate(file_paths):
+                # Import data
+                with open(file_path, mode='rb') as bin_file:
+                    content = bin_file.read()
+                    data = struct.unpack('I' * (len(content)//(4)), content)
+                # Cluster data
+                subset_clusters = cluster_data(data, ADC_to_Ch_dict, self)
+                subset_20_layers, subset_16_layers = subset_clusters
+                self.Clusters_20_layers = self.Clusters_20_layers.append(subset_20_layers)
+                self.Clusters_16_layers = self.Clusters_20_layers.append(subset_16_layers)
+                print(str(i) + '/' + str(len(file_paths)))
+            # Add data set name
+            self.data_sets += file_path.rsplit('/', 1)[-1]
             self.data_sets_browser.setText(self.data_sets)
-            self.update()
-            self.update()
-            self.app.processEvents()
-            self.update()
-            self.refresh_window()
 
     def save_action(self):
         save_path = QFileDialog.getSaveFileName()[0]

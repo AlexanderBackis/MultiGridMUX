@@ -6,6 +6,7 @@ import plotly.graph_objs as go
 import pandas as pd
 import plotly.io as pio
 import os
+from HelperFunctions import import_delimiter_table
 
 
 # =============================================================================
@@ -59,19 +60,12 @@ def Channels_plot(events, window):
                 plt.axvline(small_delimiter, color='blue', zorder=2)
 
     # Declare parameters
-    if window.MG_CNCS.isChecked():
-        attributes = ['gChADC_1', 'gChADC_2', 'wChADC_1', 'wChADC_2']
-        rows = 2
-        cols = 2
-        height = 8
-        width = 10
-    else:
-        attributes = ['wChADC_1', 'wChADC_2', 'gChADC_1',
-                      'gChADC_2', 'wChADC_3', 'wChADC_4']
-        rows = 3
-        cols = 2
-        height = 12
-        width = 10
+    attributes = ['wChADC_1', 'wChADC_2', 'gChADC_1',
+                  'gChADC_2', 'wChADC_3', 'wChADC_4']
+    rows = 3
+    cols = 2
+    height = 12
+    width = 10
     number_bins = int(window.chBins.text())
     delimiter_table = import_delimiter_table(window)
     # Prepare figure
@@ -111,19 +105,12 @@ def ADC_plot(events, window):
         plt.hist(events, bins=number_bins, range=[0, 4095],
                  histtype='step', color='black', zorder=5)
     # Declare parameters
-    if window.MG_CNCS.isChecked():
-        attributes = ['gADC_1', 'gADC_2', 'wADC_1', 'wADC_2']
-        rows = 2
-        cols = 2
-        height = 8
-        width = 10
-    else:
-        attributes = ['gADC_1', 'gADC_2', 'wADC_1',
-                      'wADC_2', 'wADC_3', 'wADC_4']
-        rows = 3
-        cols = 2
-        height = 12
-        width = 10
+    attributes = ['gADC_1', 'gADC_2', 'wADC_1',
+                  'wADC_2', 'wADC_3', 'wADC_4']
+    rows = 3
+    cols = 2
+    height = 12
+    width = 10
     number_bins = int(window.phsBins.text())
     # Prepare figure
     fig = plt.figure()
@@ -141,26 +128,3 @@ def ADC_plot(events, window):
     return fig
 
 
-
-
-# =============================================================================
-# Helper Functions
-# =============================================================================
-
-def import_delimiter_table(self):
-    dirname = os.path.dirname(__file__)
-    path = os.path.join(dirname, '../../Tables/Histogram_delimiters.xlsx')
-    matrix = pd.read_excel(path).values
-    wires, grids = [], []
-    if self.module_button_20.isChecked():
-        for row in matrix[1:]:
-            wires.append(np.array([row[0], row[1]])) # 0 1
-            if not np.isnan(row[2]): # 2
-                grids.append(np.array([row[2], row[3]])) # 2 3
-    elif self.module_button_16.isChecked():
-        for row in matrix[1:]:
-            if not np.isnan(row[4]):
-                wires.append(np.array([row[4], row[5]])) # 0 1
-            if not np.isnan(row[6]): # 2
-                grids.append(np.array([row[6], row[7]])) # 2 3
-    return {'Wires': np.array(wires), 'Grids': np.array(grids)}
