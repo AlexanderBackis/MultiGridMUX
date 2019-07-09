@@ -6,6 +6,7 @@ import plotly.graph_objs as go
 import pandas as pd
 import plotly.io as pio
 import os
+from HelperFunctions import import_delimiter_table
 
 
 # =============================================================================
@@ -59,7 +60,6 @@ def Channels_plot(events, window):
                 plt.axvline(small_delimiter, color='blue', zorder=2)
 
     # Declare parameters
-
     attributes = ['wChADC_1', 'wChADC_2', 'gChADC_1',
                   'gChADC_2', 'wChADC_3', 'wChADC_4']
     rows = 3
@@ -126,27 +126,3 @@ def ADC_plot(events, window):
         PHS_1D_plot_bus(events_attribute, sub_title, number_bins)
     plt.tight_layout()
     return fig
-
-
-
-
-# =============================================================================
-# Helper Functions
-# =============================================================================
-
-def import_delimiter_table(self):
-    dirname = os.path.dirname(__file__)
-    path = os.path.join(dirname, '../../Tables/Histogram_delimiters.xlsx')
-    matrix = pd.read_excel(path).values
-    for
-    wires, grids = [], []
-    for row in matrix[1:]:
-        wires.append(np.array([row[0], row[1]]))
-        if not np.isnan(row[2]):
-            grids.append(np.array([row[2], row[3]]))
-    for row in matrix[1:]:
-        if not np.isnan(row[4]):
-            wires.append(np.array([row[4], row[5]]))
-        if not np.isnan(row[6]):
-            grids.append(np.array([row[6], row[7]]))
-    return {'Wires': np.array(wires), 'Grids': np.array(grids)}

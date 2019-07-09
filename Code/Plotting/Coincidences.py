@@ -53,7 +53,7 @@ def Coincidences_3D_plot(df, window):
     # Initiate 'voxel_id -> (x, y, z)'-mapping
     MG24_ch_to_coord = get_MG24_to_XYZ_mapping(window)
     # Calculate 3D histogram
-    H, edges = np.histogramdd(df[['wCh_1', 'gCh_1']].values,
+    H, edges = np.histogramdd(df[['wCh_3', 'gCh_1']].values,
                               bins=(80, 13),
                               range=((0, 80), (0, 13))
                               )
