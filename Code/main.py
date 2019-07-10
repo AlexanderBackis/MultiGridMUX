@@ -122,7 +122,7 @@ class MainWindow(QMainWindow):
 
     def Channels_action(self):
         if self.data_sets != '':
-            fig = Channels_plot(self.Clusters, self)
+            fig = Channels_plot(self)
             fig.show()
 
     def ADC_action(self):

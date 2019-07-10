@@ -37,7 +37,7 @@ def ToF_histogram(df, window):
 # =============================================================================
 
 
-def Channels_plot(events, window):
+def Channels_plot(window):
     def channels_plot_bus(events, sub_title, number_bins, delimiters):
         # Plot
         plt.title(sub_title)
@@ -60,13 +60,18 @@ def Channels_plot(events, window):
                 plt.axvline(small_delimiter, color='blue', zorder=2)
 
     # Declare parameters
-    attributes_20 = ['wChADC_m1', 'wChADC_m2','gChADC_m1','gChADC_m2']
+    df_20 = window.Clusters_20_layers
+    df_16 = window.Clusters_16_layers
+    attributes_20 = ['wChADC_m1', 'wChADC_m2','gChADC_m1']#,'gChADC_m2']
+    attributes_16 = ['wChADC_m1', 'wChADC_m2','gChADC_m1']#,'gChADC_m2']
+    #attributes = ['wChADC_m1', 'wChADC_m2','gChADC_m1','wChADC_m1', 'wChADC_m2','gChADC_m1']
     rows = 2
     cols = 3
     height = 12
     width = 10
     number_bins = int(window.chBins.text())
-    delimiter_table = import_delimiter_table(window)
+    delimiter_table = import_delimiter_table()
+    print(delimiter_table)
     # Prepare figure
     fig = plt.figure()
     fig.set_figheight(height)
@@ -75,14 +80,31 @@ def Channels_plot(events, window):
     fig.suptitle(title, x=0.5, y=1.03)
     # Plot figure
     for i, attribute in enumerate(attributes_20):
-        events_attribute_20 = events[attribute]
+        events_attribute_20 = df_20[attribute]
         plt.subplot(rows, cols, i+1)
         sub_title = attribute
         if sub_title[0] == 'g':
-            delimiters = delimiter_table['Grids']
+            delimiters_20 = delimiter_table['20_layers']['Grids']
         else:
-            delimiters = delimiter_table['Wires']
-        channels_plot_bus(events_attribute, sub_title, number_bins, delimiters)
+            delimiters_20 = delimiter_table['20_layers']['Wires']
+            print(delimiters_20)
+        channels_plot_bus(events_attribute_20, sub_title, number_bins, delimiters_20)
+
+
+
+        """
+        events_attribute_16 = df_16[attribute]
+        plt.subplot(rows, cols, i+1)
+        sub_title = attribute
+        if sub_title[0] == 'g':
+            delimiters_20 = delimiter_table['20_layers']['Grids']
+            delimiters_16 = delimiter_table['16_layers']['Grids']
+        else:
+            delimiters_20 = delimiter_table['20_layers']['Wires']
+            delimiters_16 = delimiter_table['16_layers']['Wires']
+        channels_plot_bus(events_attribute_20, sub_title, number_bins, delimiters_20)
+        channels_plot_bus(events_attribute_16, sub_title, number_bins, delimiters_16)
+        """
     plt.tight_layout()
     return fig
 
