@@ -114,19 +114,19 @@ def cluster_data(data, ADC_to_Ch_dict, window):
             attribute = attributes[Channel]
             # Extract data and insert into our different detectors
             if 0 <= Channel <= 1:
-                events_20_layers[attribute][index] = ADC
-            elif 2 <= Channel <= 3:
-                events_20_layers[attribute][index] = ADC
-                Ch_ID = channels[attribute]
-                physical_Ch = ADC_to_Ch_dict['20_layers']['Wires'][ADC]
-                events_20_layers[Ch_ID][index] = physical_Ch
-            elif 4 <= Channel <= 5:
                 events_16_layers[attribute][index] = ADC
-            elif 6 <= Channel <= 7:
+            elif 2 <= Channel <= 3:
                 events_16_layers[attribute][index] = ADC
                 Ch_ID = channels[attribute]
                 physical_Ch = ADC_to_Ch_dict['16_layers']['Wires'][ADC]
                 events_16_layers[Ch_ID][index] = physical_Ch
+            elif 4 <= Channel <= 5:
+                events_20_layers[attribute][index] = ADC
+            elif 6 <= Channel <= 7:
+                events_20_layers[attribute][index] = ADC
+                Ch_ID = channels[attribute]
+                physical_Ch = ADC_to_Ch_dict['20_layers']['Wires'][ADC]
+                events_20_layers[Ch_ID][index] = physical_Ch
             elif 8 <= Channel <= 9:
                 events_20_layers[attribute][index] = ADC
                 events_16_layers[attribute][index] = ADC

@@ -62,16 +62,15 @@ def Channels_plot(window):
     # Declare parameters
     df_20 = window.Clusters_20_layers
     df_16 = window.Clusters_16_layers
-    attributes_20 = ['wChADC_m1', 'wChADC_m2','gChADC_m1']#,'gChADC_m2']
-    attributes_16 = ['wChADC_m1', 'wChADC_m2','gChADC_m1']#,'gChADC_m2']
-    #attributes = ['wChADC_m1', 'wChADC_m2','gChADC_m1','wChADC_m1', 'wChADC_m2','gChADC_m1']
-    rows = 2
-    cols = 3
+    attributes_20 = ['wChADC_m1', 'wChADC_m2']
+    attributes_16 = ['wChADC_m1', 'wChADC_m2']
+    attributes_grids = ['gChADC_m1', 'gChADC_m2']
+    rows = 3
+    cols = 2
     height = 12
     width = 10
     number_bins = int(window.chBins.text())
     delimiter_table = import_delimiter_table()
-    print(delimiter_table)
     # Prepare figure
     fig = plt.figure()
     fig.set_figheight(height)
@@ -83,28 +82,32 @@ def Channels_plot(window):
         events_attribute_20 = df_20[attribute]
         plt.subplot(rows, cols, i+1)
         sub_title = attribute
-        if sub_title[0] == 'g':
-            delimiters_20 = delimiter_table['20_layers']['Grids']
-        elif sub_title[-1] == '1': 
+        if sub_title[0] == 'w' and sub_title[-1] == '1':
             delimiters_20 = delimiter_table['20_layers']['Wires']
-            print(delimiters_20)
+        sub_title = attribute + ' -- 20 layers'
         channels_plot_bus(events_attribute_20, sub_title, number_bins, delimiters_20)
 
-
-
-        """
+    for i, attribute in enumerate(attributes_16):
         events_attribute_16 = df_16[attribute]
-        plt.subplot(rows, cols, i+1)
+        plt.subplot(rows, cols, i+3)
         sub_title = attribute
-        if sub_title[0] == 'g':
-            delimiters_20 = delimiter_table['20_layers']['Grids']
-            delimiters_16 = delimiter_table['16_layers']['Grids']
-        else:
-            delimiters_20 = delimiter_table['20_layers']['Wires']
+        if sub_title[0] == 'w' and sub_title[-1] == '1':
             delimiters_16 = delimiter_table['16_layers']['Wires']
-        channels_plot_bus(events_attribute_20, sub_title, number_bins, delimiters_20)
+        sub_title = attribute + ' -- 16 layers'
         channels_plot_bus(events_attribute_16, sub_title, number_bins, delimiters_16)
-        """
+
+    for i, attribute in enumerate(attributes_grids):
+        events_attribute_grids = df_20[attribute]
+        plt.subplot(rows, cols, i+5)
+        sub_title = attribute
+        delimiters = []
+        if sub_title[0] == 'g':
+            delimiters.extend(delimiter_table['20_layers']['Grids'])
+            delimiters.extend(delimiter_table['16_layers']['Grids'])
+        sub_title = attribute + ' -- both layers'
+        channels_plot_bus(events_attribute_grids, sub_title, number_bins, delimiters)
+    print("Order of the grids might be wrong in grid channel plots")
+
     plt.tight_layout()
     return fig
 

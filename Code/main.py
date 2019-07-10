@@ -80,7 +80,7 @@ class MainWindow(QMainWindow):
                 subset_clusters = cluster_data(data, ADC_to_Ch_dict, self)
                 subset_20_layers, subset_16_layers = subset_clusters
                 self.Clusters_20_layers = self.Clusters_20_layers.append(subset_20_layers)
-                self.Clusters_16_layers = self.Clusters_20_layers.append(subset_16_layers)
+                self.Clusters_16_layers = self.Clusters_16_layers.append(subset_16_layers)
             # Add data set to list of data sets
             self.data_sets += folder_path.rsplit('/', 1)[-1]
             # Assign data set name
