@@ -85,7 +85,7 @@ def Channels_plot(window):
         sub_title = attribute
         if sub_title[0] == 'g':
             delimiters_20 = delimiter_table['20_layers']['Grids']
-        else:
+        elif sub_title[-1] == '1': 
             delimiters_20 = delimiter_table['20_layers']['Wires']
             print(delimiters_20)
         channels_plot_bus(events_attribute_20, sub_title, number_bins, delimiters_20)
