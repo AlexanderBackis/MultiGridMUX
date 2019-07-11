@@ -137,7 +137,7 @@ class MainWindow(QMainWindow):
 
     def Coincidences_3D_action(self):
         if self.data_sets != '':
-            Coincidences_3D_plot(self.Clusters, self)
+            Coincidences_3D_plot(self)
 
     def help_action(self):
         print("HELP!!!!")

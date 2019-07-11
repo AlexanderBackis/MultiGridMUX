@@ -73,7 +73,7 @@ def Coincidences_2D_plot(window):
 # Coincidence Histogram (3D)
 # =============================================================================
 
-def Coincidences_3D_plot(df, window):
+def Coincidences_3D_plot(window):
     # Intial filter
     #df = filter_clusters(df, window)
     df_20 = window.Clusters_20_layers
