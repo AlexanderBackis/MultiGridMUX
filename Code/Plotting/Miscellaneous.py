@@ -117,7 +117,7 @@ def Channels_plot(window):
 # ============================================================================
 
 
-def ADC_plot(events, window):
+def ADC_plot(window):
     def PHS_1D_plot_bus(events, sub_title, number_bins):
         # Plot
         plt.title(sub_title)
@@ -129,13 +129,15 @@ def ADC_plot(events, window):
         plt.hist(events, bins=number_bins, range=[0, 4095],
                  histtype='step', color='black', zorder=5)
     # Declare parameters
-    attributes = ['gADC_1', 'gADC_2', 'wADC_1',
-                  'wADC_2', 'wADC_3', 'wADC_4']
-    rows = 3
-    cols = 2
+    attributes = ['gADC_m1', 'gADC_m2',
+                  'wADC_m1', 'wADC_m2',
+                  'wChADC_m1', 'wChADC_m2',
+                  'gChADC_m1', 'gChADC_m2']
+    rows = 4
+    cols = 4
     height = 12
     width = 10
-    number_bins = int(window.phsBins.text())
+    number_bins = int(window.chBins.text())
     # Prepare figure
     fig = plt.figure()
     fig.set_figheight(height)
@@ -144,9 +146,14 @@ def ADC_plot(events, window):
     fig.suptitle(title, x=0.5, y=1.03)
     # Plot figure
     for i, attribute in enumerate(attributes):
-        events_attribute = events[attribute]
+        events_attribute = window.Clusters_16_layers[attribute]
         plt.subplot(rows, cols, i+1)
-        sub_title = attribute
+        sub_title = attribute + ' (16 layers)'
+        PHS_1D_plot_bus(events_attribute, sub_title, number_bins)
+    for i, attribute in enumerate(attributes):
+        events_attribute = window.Clusters_20_layers[attribute]
+        plt.subplot(rows, cols, i+1+8)
+        sub_title = attribute + ' (20 layers)'
         PHS_1D_plot_bus(events_attribute, sub_title, number_bins)
     plt.tight_layout()
     return fig

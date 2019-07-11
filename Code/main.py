@@ -127,7 +127,7 @@ class MainWindow(QMainWindow):
 
     def ADC_action(self):
         if self.data_sets != '':
-            fig = ADC_plot(self.Clusters, self)
+            fig = ADC_plot(self)
             fig.show()
 
     def Coincidences_2D_action(self):
