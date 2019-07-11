@@ -547,7 +547,7 @@
      <string>Coincidences</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="Coincidences_Front_Top_Side">
+   <widget class="QPushButton" name="Coincidences_Front_Top_Side_button">
     <property name="geometry">
      <rect>
       <x>270</x>

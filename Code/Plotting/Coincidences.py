@@ -27,18 +27,6 @@ def Coincidences_2D_plot(window):
                      'ce_16': {'w': None, 'g': None}}
     # Select grids with highest collected charge
     for clusters, name in zip(clusters_vec, ['ce_20', 'ce_16']):
-        print('gADC_m1')
-        print(clusters['gADC_m1'])
-        print('gADC_m2')
-        print(clusters['gADC_m2'])
-        print('gCh_m1')
-        print(clusters['gCh_m1'])
-        print('gCh_2')
-        print(clusters['gCh_m2'])
-        print('wADC_m1')
-        print(clusters['wADC_m1'])
-        print('wCh_m1')
-        print(clusters['gCh_m1'])
         channels_g1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['gCh_m1']
         channels_w1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['wCh_m1']
         channels_g2 = clusters[clusters['gADC_m1'] <= clusters['gADC_m2']]['gCh_m2']
@@ -64,19 +52,21 @@ def Coincidences_2D_plot(window):
     min_16 = min(els)
     if min_16 == 0:
         min_16 = 1
-    plt.xlabel('Wire [Channel number]')
-    plt.ylabel('Grid [Channel number]')
+    plt.xlabel('Wires')
+    plt.ylabel('Grids')
     plt.colorbar()
     plt.subplot(1, 2, 2)
     plt.title('20 layers')
-    plt.hist2d(clusters_dict['ce_20']['w'], clusters_dict['ce_20']['g'], bins=[80, 12],
-                range=[[-0.5, 79.5], [-0.5, 11.5]],
-                norm=LogNorm(), cmap='jet', vmin=min_16, vmax=max_16)
+    plt.hist2d(clusters_dict['ce_20']['w'], clusters_dict['ce_20']['g'],
+               bins=[80, 12],
+               range=[[-0.5, 79.5], [-0.5, 11.5]],
+               norm=LogNorm(), cmap='jet', vmin=min_16, vmax=max_16)
     print("Using color axis from 16-layers plot also for 20-layers plot")
-    plt.xlabel('Wire [Channel number]')
-    plt.ylabel('Grid [Channel number]')
+    plt.xlabel('Wires')
+    plt.ylabel('Grids')
     fig.suptitle('Coincident events (2D) -- Data set(s): %s' % data_sets)
     plt.colorbar()
+    plt.tight_layout()
 
     return fig
 
@@ -151,6 +141,117 @@ def Coincidences_3D_plot(df, window):
                     filename='../Results/Ce3Dhistogram.html',
                     auto_open=True)
     #pio.write_image(fig, '../Results/HTML_files/Ce3Dhistogram.pdf')
+
+
+# =============================================================================
+# Coincidence Histogram (Front, Top, Side)
+# =============================================================================
+
+def Coincidences_Front_Top_Side_plot(window):
+    def plot_front(wires, grids, layers, vmin, vmax):
+        plt.hist2d(wires // layers, grids, bins=[4, 12],
+                   range=[[-0.5, 3.5], [-0.5, 11.5]], norm=LogNorm(),
+                   cmap='jet', vmin=vmin, vmax=vmax)
+        plt.title('Front view (%d layers)' % layers)
+        plt.xlabel('Row')
+        plt.ylabel('Grid')
+        plt.colorbar()
+    def plot_top(wires, grids, layers, vmin, vmax):
+        plt.hist2d(wires // layers, wires % layers, bins=[4, layers],
+                   range=[[-0.5, 3.5], [-0.5, layers-0.5]], norm=LogNorm(),
+                   cmap='jet', vmin=vmin, vmax=vmax)
+        plt.title('Top view (%d layers)' % layers)
+        plt.xlabel('Row')
+        plt.ylabel('Layer')
+        plt.colorbar()
+    def plot_side(wires, grids, layers, vmin, vmax):
+        plt.hist2d(wires % layers, grids, bins=[layers, 12],
+                   range=[[-0.5, layers-0.5], [-0.5, 11.5]], norm=LogNorm(),
+                   cmap='jet', vmin=vmin, vmax=vmax)
+        plt.title('Side view (%d layers)' % layers)
+        plt.xlabel('Layer')
+        plt.ylabel('Grid')
+        plt.colorbar()
+
+    # Declare parameters (added with condition if empty array)
+    data_sets = window.data_sets.splitlines()[0]
+    df_20 = window.Clusters_20_layers
+    df_16 = window.Clusters_16_layers
+    clusters_vec = [df_20, df_16]
+    clusters_dict = {'ce_20': {'w': None, 'g': None},
+                     'ce_16': {'w': None, 'g': None}}
+    # Select grids with highest collected charge
+    for clusters, name in zip(clusters_vec, ['ce_20', 'ce_16']):
+        channels_g1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['gCh_m1']
+        channels_w1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['wCh_m1']
+        channels_g2 = clusters[clusters['gADC_m1'] <= clusters['gADC_m2']]['gCh_m2']
+        channels_w2 = clusters[clusters['gADC_m1'] <= clusters['gADC_m2']]['wCh_m1']
+        clusters_dict[name]['g'] = channels_g1.append(channels_g2)
+        clusters_dict[name]['w'] = channels_w1.append(channels_w2)
+    wires_20 = clusters_dict['ce_20']['w'].values
+    grids_20 = clusters_dict['ce_20']['g'].values
+    wires_16 = clusters_dict['ce_16']['w'].values
+    grids_16 = clusters_dict['ce_16']['g'].values
+
+    if len(wires_20) != 0:
+        vmin = len(wires_20) // 100
+        vmax = len(wires_20) // 10
+    else:
+        vmin = 1
+        vmax = 1
+    vmin = None
+    vmax = None
+    fig = plt.figure()
+    fig.set_figheight(8)
+    fig.set_figwidth(14)
+    #fig.suptitle('Coincidences - Front, Top, Side')
+    plt.subplot(2, 3, 1)
+    plot_front(wires_20, grids_20, 20, vmin, vmax)
+    plt.subplot(2, 3, 2)
+    plot_top(wires_20, grids_20, 20, vmin, vmax)
+    plt.subplot(2, 3, 3)
+    plot_side(wires_20, grids_20, 20, vmin, vmax)
+    plt.subplot(2, 3, 4)
+    plot_front(wires_16, grids_16, 16, vmin, vmax)
+    plt.subplot(2, 3, 5)
+    plot_top(wires_16, grids_16, 16, vmin, vmax)
+    plt.subplot(2, 3, 6)
+    plot_side(wires_16, grids_16, 16, vmin, vmax)
+    plt.tight_layout()
+    return fig
+
+
+
+
+
+
+
+# =============================================================================
+# Coincidence Histogram - Side
+# =============================================================================
+
+
+def plot_2D_Side(bus_vec, df, fig, number_of_detectors, vmin, vmax):
+
+    df_tot = pd.DataFrame()
+    for i, bus in enumerate(bus_vec):
+        df_clu = df[df.Bus == bus]
+        df_clu['gCh'] += (-80 + 1)
+        df_tot = pd.concat([df_tot, df_clu])
+    h, *_ = plt.hist2d(df_tot['wCh'] % 20 + 1, df_tot['gCh'],
+                       bins=[20, 40],
+                       range=[[0.5, 20.5], [0.5, 40.5]],
+                       norm=LogNorm(),
+                       cmap='jet', vmin=vmin, vmax=vmax
+                       )
+
+    title = 'Side view'
+    xlabel = 'Wire'
+    ylabel = 'Grid'
+    fig = stylize(fig, xlabel, ylabel, title=title, colorbar=True)
+    plt.colorbar()
+    return fig, h
+
 
 
 # =============================================================================

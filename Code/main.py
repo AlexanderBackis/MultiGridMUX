@@ -14,7 +14,8 @@ from contextlib import ExitStack
 
 from cluster import cluster_data, save_data, load_data
 from Plotting.PHS import PHS_1D_plot, PHS_2D_plot
-from Plotting.Coincidences import Coincidences_2D_plot, Coincidences_3D_plot
+from Plotting.Coincidences import (Coincidences_2D_plot, Coincidences_3D_plot,
+                                   Coincidences_Front_Top_Side_plot)
 from Plotting.Miscellaneous import ToF_histogram, Channels_plot, ADC_plot
 from Plotting.HelpMessage import gethelp
 from Plotting.HelperFunctions import get_ADC_to_Ch_dict
@@ -143,7 +144,7 @@ class MainWindow(QMainWindow):
             self.refresh_window()
             window_update_time = (time.time() - start_time)
             print('Window update: %f [s]' % window_update_time)
-            print(self.Clusters_20_layers)
+            #print(self.Clusters_20_layers)
         print('Total time')
         print((time.time() - first_time))
 
@@ -195,6 +196,11 @@ class MainWindow(QMainWindow):
         if self.data_sets != '':
             Coincidences_3D_plot(self.Clusters, self)
 
+    def Coincidences_Front_Top_Side_action(self):
+        if self.data_sets != '':
+            fig = Coincidences_Front_Top_Side_plot(self)
+            fig.show()
+
     def help_action(self):
         print("HELP!!!!")
         gethelp()
@@ -214,6 +220,7 @@ class MainWindow(QMainWindow):
         self.PHS_2D_button.clicked.connect(self.PHS_2D_action)
         self.Coincidences_2D_button.clicked.connect(self.Coincidences_2D_action)
         self.Coincidences_3D_button.clicked.connect(self.Coincidences_3D_action)
+        self.Coincidences_Front_Top_Side_button.clicked.connect(self.Coincidences_Front_Top_Side_action)
         self.ToF_button.clicked.connect(self.ToF_action)
         self.Channels_button.clicked.connect(self.Channels_action)
         self.ADC_button.clicked.connect(self.ADC_action)
