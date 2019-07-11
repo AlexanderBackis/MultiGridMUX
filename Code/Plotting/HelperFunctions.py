@@ -60,6 +60,7 @@ def import_delimiter_table():
     delimiters_dictionary = {'20_layers': None, '16_layers': None}
     for detector, (a, b, c, d) in zip(detectors, indices):
         wires, grids = [], []
+        #print(detector)
         for row in matrix[1:]:
             if not np.isnan(row[a]):
                 wires.append(np.array([row[a], row[b]]))  # 0 1
@@ -67,6 +68,7 @@ def import_delimiter_table():
                 grids.append(np.array([row[c], row[d]]))  # 2 3
         delimiters_dictionary[detector] = {'Wires': np.array(wires),
                                            'Grids': np.array(grids)}
+        #print(delimiters_dictionary[detector])
     return delimiters_dictionary
 
 def import_channel_mappings():
@@ -80,6 +82,7 @@ def import_channel_mappings():
     channel_mapping_table = {'20_layers': None, '16_layers': None}
     for detector, (a, b) in zip(detectors, indices):
         wires, grids = [], []
+        #print(detector)
         for row in matrix[1:]:
             if not np.isnan(row[a]):
                 wires.append(np.array(row[a]))
@@ -87,6 +90,7 @@ def import_channel_mappings():
                 grids.append(np.array(row[b]))
         channel_mapping_table[detector] = {'Wires': np.array(wires),
                                            'Grids': np.array(grids)}
+        #print(channel_mapping_table[detector])
     return channel_mapping_table
 
 
@@ -104,21 +108,24 @@ def get_ADC_to_Ch_dict():
         # Prepare storage of mapping for current detector
         ADC_to_Ch = {'Wires': {i: -1 for i in range(4096)},
                      'Grids': {i: -1 for i in range(4096)}}
+        #print(detector)
+        #print('--')
         for key, delimiters in delimiters_table.items():
             layers = layers_dict[key]
             for i, (start, stop) in enumerate(delimiters):
                 # Get channel mapping and delimiters
-                channel = channel_mapping[key][i]
+                #channel = channel_mapping[key][i]
                 small_delimiters = np.linspace(start, stop, layers+1)
                 # Iterate through small delimiters
                 previous_value = small_delimiters[0]
                 for j, value in enumerate(small_delimiters[1:]):
                     channel = channel_mapping[key][i*layers+j]
-                    print('i: %s, Ch: %s' % (str(i*layers+j), str(channel)))
+                    #print('i: %s, Ch: %s' % (str(i*layers+j), str(channel)))
                     start, stop = int(round(previous_value)), int(round(value))
                     # Assign ADC->Ch mapping for all values within interval
                     for k in np.arange(start, stop, 1):
                         ADC_to_Ch[key][k] = channel
                     previous_value = value
             ADC_to_Ch_dict[detector] = ADC_to_Ch
+        #print(ADC_to_Ch_dict[detector])
     return ADC_to_Ch_dict

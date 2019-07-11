@@ -19,38 +19,56 @@ def Coincidences_2D_plot(window):
     df_20 = window.Clusters_20_layers
     df_16 = window.Clusters_16_layers
     # Intial filter
-    clusters_20 = filter_clusters(df_20, window)
-    clusters_16 = filter_clusters(df_16, window)
+    clusters_20 = df_20 #filter_clusters(df_20, window)
+    clusters_16 = df_16 #filter_clusters(df_16, window)
+    #print(clusters_20)
     clusters_vec = [clusters_20, clusters_16]
-    clusters_dict = {'ce_20': None, 'ce_16': None}
-    # Select grids with highest collected Charge
+    clusters_dict = {'ce_20': {'w': None, 'g': None},
+                     'ce_16': {'w': None, 'g': None}}
+    # Select grids with highest collected charge
     for clusters, name in zip(clusters_vec, ['ce_20', 'ce_16']):
         channels_g1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['gCh_m1']
         channels_w1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['wCh_m1']
         channels_g2 = clusters[clusters['gADC_m1'] <= clusters['gADC_m2']]['gCh_m2']
         channels_w2 = clusters[clusters['gADC_m1'] <= clusters['gADC_m2']]['wCh_m1']
-        clusters_dict[name] = channels_g1.append(channels_g2)
+        clusters_dict[name]['g'] = channels_g1.append(channels_g2)
+        clusters_dict[name]['w'] = channels_w1.append(channels_w2)
 
-    # Plot data
-    fig, axs = plt.subplots(nrows=1, ncols=2)
-    ax = axs[0]
-    ax.set_title('layers: 16')
-    ax.hist2d(clusters_16.wCh_m1, clusters_16.gCh_m1, bins=[64, 12],
-                range=[[-0.5, 63.5], [-0.5, 11.5]],
-                norm=LogNorm(), cmap='jet')
-    ax.set_xlabel('Wire [Channel number]')
-    ax.set_ylabel('Grid [Channel number]')
+    fig = plt.figure()
+    plt.subplot(1, 2, 1)
+    plt.title('16 layers')
 
-    ax = axs[1]
-    ax.set_title('layers: 20')
-    ax.hist2d(clusters_20.wCh_m1, clusters_20.gCh_m1, bins=[80, 12],
+    hist_all = plt.hist2d(clusters_dict['ce_16']['w'],
+                                      clusters_dict['ce_16']['g'],
+                                      bins=[64, 12],
+                                      range=[[-0.5, 63.5], [-0.5, 11.5]],
+                                      norm=LogNorm(), cmap='jet')#,     vmin=1, vmax=3)
+    hist = hist_all[0]
+    #print(hist_all[0])
+    els = []
+    for row in hist:
+        for i in row:
+            els.append(i)
+    max_16 = max(els)
+    min_16 = min(els)
+    if min_16 == 0:
+        min_16 = 1
+    #print(els)
+    #print(max_16)
+    #print(min_16)
+    plt.xlabel('Wire [Channel number]')
+    plt.ylabel('Grid [Channel number]')
+    plt.colorbar()
+    plt.subplot(1, 2, 2)
+    plt.title('20 layers')
+    plt.hist2d(clusters_dict['ce_20']['w'], clusters_dict['ce_20']['g'], bins=[80, 12],
                 range=[[-0.5, 79.5], [-0.5, 11.5]],
-                norm=LogNorm(), cmap='jet')
-    ax.set_xlabel('Wire [Channel number]')
-    ax.set_ylabel('Grid [Channel number]')
+                norm=LogNorm(), cmap='jet', vmin=min_16, vmax=max_16)
+    print("Using color axis from 16-layers plot")
+    plt.xlabel('Wire [Channel number]')
+    plt.ylabel('Grid [Channel number]')
     fig.suptitle('Coincident events (2D) -- Data set(s): %s' % data_sets)
-    plt.subplots_adjust(wspace=0.2)
-    #plt.colorbar()
+    plt.colorbar()
 
     return fig
 

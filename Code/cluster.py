@@ -114,24 +114,39 @@ def cluster_data(data, ADC_to_Ch_dict, window):
             attribute = attributes[Channel]
             # Extract data and insert into our different detectors
             if 0 <= Channel <= 1:
+                #print('wADC_16')
+                #print(attribute)
                 events_16_layers[attribute][index] = ADC
             elif 2 <= Channel <= 3:
+                #print('wADC_16')
                 events_16_layers[attribute][index] = ADC
                 Ch_ID = channels[attribute]
+                #print('Attribute: %s' % attribute)
+                #print('Ch_ID: %s' % Ch_ID)
                 physical_Ch = ADC_to_Ch_dict['16_layers']['Wires'][ADC]
                 events_16_layers[Ch_ID][index] = physical_Ch
             elif 4 <= Channel <= 5:
+                #print('wADC_20')
+                #print(attribute)
                 events_20_layers[attribute][index] = ADC
             elif 6 <= Channel <= 7:
+                #print('wADC_20')
                 events_20_layers[attribute][index] = ADC
                 Ch_ID = channels[attribute]
+                #print('Attribute: %s' % attribute)
+                #print('Ch_ID: %s' % Ch_ID)
                 physical_Ch = ADC_to_Ch_dict['20_layers']['Wires'][ADC]
                 events_20_layers[Ch_ID][index] = physical_Ch
             elif 8 <= Channel <= 9:
+                #print('gADC_20 and gADC_16')
+                #print(attribute)
                 events_20_layers[attribute][index] = ADC
                 events_16_layers[attribute][index] = ADC
             else:
+                #print('gADC_Ch_20 and gADC_16')
                 Ch_ID = channels[attribute]
+                #print('Attribute: %s' % attribute)
+                #print('Ch_ID: %s' % Ch_ID)
                 # Assign 20 layers
                 events_20_layers[attribute][index] = ADC
                 physical_Ch = ADC_to_Ch_dict['20_layers']['Grids'][ADC]
@@ -155,7 +170,12 @@ def cluster_data(data, ADC_to_Ch_dict, window):
     events_20_layers_df = pd.DataFrame(events_20_layers)
     events_16_layers_df = pd.DataFrame(events_16_layers)
     #print(events_16_layers_df)
-    #print(events_20_layers_df)
+    #print(events_20_layers_df.shape[0])
+    #print('20 layers wires multiplicity 1')
+    #print(events_20_layers_df[events_20_layers_df['wCh_m1'] > -1].shape[0])
+    #print('20 layers grids multiplicity 1')
+    #print(events_20_layers_df[events_20_layers_df['gCh_m1'] > -1].shape[0])
+    #print(events_20_layers_df[])
     return events_20_layers_df, events_16_layers_df
 
 
