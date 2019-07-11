@@ -14,12 +14,12 @@ from Plotting.HelperFunctions import import_delimiter_table
 # =============================================================================
 
 
-def ToF_histogram(df, window):
+def ToF_histogram(window):
     # Get parameters
     number_bins = int(window.tofBins.text())
     # Produce histogram and plot
     fig = plt.figure()
-    plt.hist(df.ToF, bins=number_bins,
+    plt.hist(window.Clusters_16_layers.ToF, bins=number_bins,
              log=True, color='black', zorder=4,
              histtype='step', label='MG'
              )

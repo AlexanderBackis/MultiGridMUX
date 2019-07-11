@@ -78,22 +78,43 @@ def Coincidences_3D_plot(window):
     #df = filter_clusters(df, window)
     df_20 = window.Clusters_20_layers
     df_16 = window.Clusters_16_layers
+    print(df_20[['wCh_m1', 'gCh_m1']])
+    # Intial filter
+    clusters_20 = df_20 #filter_clusters(df_20, window)
+    clusters_16 = df_16 #filter_clusters(df_16, window)
+    clusters_vec = [clusters_20, clusters_16]
+    clusters_dict = {'ce_20': {'w': None, 'g': None},
+                     'ce_16': {'w': None, 'g': None}}
+    # Select grids with highest collected charge
+    for clusters, name in zip(clusters_vec, ['ce_20', 'ce_16']):
+        channels_g1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['gCh_m1']
+        channels_w1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['wCh_m1']
+        channels_g2 = clusters[clusters['gADC_m1'] <= clusters['gADC_m2']]['gCh_m2']
+        channels_w2 = clusters[clusters['gADC_m1'] <= clusters['gADC_m2']]['wCh_m1']
+        clusters_dict[name]['g'] = channels_g1.append(channels_g2)
+        clusters_dict[name]['w'] = channels_w1.append(channels_w2)
+
     # Declare max and min count
     min_count = 0
     max_count = np.inf
     # Initiate 'voxel_id -> (x, y, z)'-mapping
-    MG24_ch_to_coord_20, MG24_ch_to_coord_20 = get_MG24_to_XYZ_mapping(window)
+    MG24_ch_to_coord_20, MG24_ch_to_coord_16 = get_MG24_to_XYZ_mapping(window)
+    #print(MG24_ch_to_coord_16)
+
+    print("20 wires", clusters_dict['ce_20']['w'])
+    print("20 grids", clusters_dict['ce_20']['g'])
+
     # Calculate 3D histogram
-    H, edges = np.histogramdd(df[['wCh_3', 'gCh_1']].values,
-                              bins=(80, 13),
-                              range=((0, 80), (0, 13))
+    H, edges = np.histogramdd(df[['wCh_m1', 'gCh_m1']].values,
+                              bins=(144, 25),#bins=(80, 13),
+                              range=((0, 144), (0, 25))
                               )
     # Insert results into an array
     hist = [[], [], [], []]
     loc = 0
     labels = []
-    for wCh in range(0, 80):
-        for gCh in range(0, 13):
+    for wCh in range(0, 144):#range(0, 80):
+        for gCh in range(0, 25):#range(0, 13):
             over_min = H[wCh, gCh] > min_count
             under_max = H[wCh, gCh] <= max_count
             if over_min and under_max:
@@ -154,22 +175,22 @@ def get_MG24_to_XYZ_mapping(window):
     GridSpacing = 23.5
     y_offset = 100
     # Iterate over all channels and create mapping
-    grid_20_layers = select_grid()[0]
-    grid_16_layers = select_grid()[1]
-    if grid_20_layers:
-        MG24_ch_to_coord_20 = np.empty((13, 80), dtype='object')
-        for gCh in np.arange(0, 13, 1):
-            for wCh in np.arange(0, 80, 1):
-                x = (wCh // 20) * LayerSpacing
-                y = gCh * GridSpacing
-                z = (wCh % 20) * WireSpacing
-                MG24_ch_to_coord_20[gCh, wCh] = {'x': x, 'y': y, 'z': z}
-    elif grid_16_layers:
-        MG24_ch_to_coord_16 = np.empty((13, 64), dtype='object')
-        for gCh in np.arange(0, 13, 1):
-            for wCh in np.arange(0, 64, 1):
-                x = (wCh // 16) * LayerSpacing
-                y = gCh * GridSpacing + y_offset
-                z = (wCh % 16) * WireSpacing
-                MG24_ch_to_coord_16[gCh, wCh] = {'x': x, 'y': y, 'z': z}
+    #grid_20_layers = select_grid()[0]
+    #grid_16_layers = select_grid()[1]
+    #if whichgrid == "layers_20":
+    MG24_ch_to_coord_20 = np.empty((13, 80), dtype='object')
+    for gCh in np.arange(0, 13, 1):
+        for wCh in np.arange(0, 80, 1):
+            x = (wCh // 20) * LayerSpacing
+            y = gCh * GridSpacing
+            z = (wCh % 20) * WireSpacing
+            MG24_ch_to_coord_20[gCh, wCh] = {'x': x, 'y': y, 'z': z}
+    #elif whichgrid == "layers_16":
+    MG24_ch_to_coord_16 = np.empty((13, 64), dtype='object')
+    for gCh in np.arange(0, 13, 1):
+        for wCh in np.arange(0, 64, 1):
+            x = (wCh // 16) * LayerSpacing
+            y = gCh * GridSpacing + y_offset
+            z = (wCh % 16) * WireSpacing
+            MG24_ch_to_coord_16[gCh, wCh] = {'x': x, 'y': y, 'z': z}
     return MG24_ch_to_coord_20, MG24_ch_to_coord_16

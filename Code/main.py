@@ -117,7 +117,7 @@ class MainWindow(QMainWindow):
 
     def ToF_action(self):
         if self.data_sets != '':
-            fig = ToF_histogram(self.Clusters, self)
+            fig = ToF_histogram(self)
             fig.show()
 
     def Channels_action(self):

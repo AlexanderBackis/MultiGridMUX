@@ -107,10 +107,12 @@ def cluster_data(data, ADC_to_Ch_dict, window):
     for i, word in enumerate(data):
         if (word & SignatureMask) == Header:
             pass
+            #print('START')
         elif ((word & SignatureMask) == Data):
             # Extract values
             ADC = (word & ADCMask)
             Channel = ((word & ChannelMask) >> ChannelShift)
+            #print(Channel)
             attribute = attributes[Channel]
             # Extract data and insert into our different detectors
             if 0 <= Channel <= 1:
