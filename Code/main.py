@@ -9,6 +9,8 @@ import shutil
 import numpy as np
 import struct
 import pandas as pd
+import time
+from contextlib import ExitStack
 
 from cluster import cluster_data, save_data, load_data
 from Plotting.PHS import PHS_1D_plot, PHS_2D_plot
@@ -40,47 +42,93 @@ class MainWindow(QMainWindow):
     # =========================================================================
     # File handling
     # =========================================================================
-    """
-    def cluster_action(self):
-        # Declare parameters
-        file_paths = QFileDialog.getOpenFileNames()[0]
-        ADC_to_Ch_dict = get_ADC_to_Ch_dict()
-        if len(file_paths) > 0:
-            # Iterate through all files
-            for i, file_path in enumerate(file_paths):
-                # Import data
-                with open(file_path, mode='rb') as bin_file:
-                    content = bin_file.read()
-                    data = struct.unpack('I' * (len(content)//(4)), content)
-                # Cluster data
-                subset_clusters = cluster_data(data, ADC_to_Ch_dict, self)
-                subset_20_layers, subset_16_layers = subset_clusters
-                self.Clusters_20_layers = self.Clusters_20_layers.append(subset_20_layers)
-                self.Clusters_16_layers = self.Clusters_20_layers.append(subset_16_layers)
-                print(str(i) + '/' + str(len(file_paths)))
-            # Add data set name
-            self.data_sets += file_path.rsplit('/', 1)[-1]
-            self.data_sets_browser.setText(self.data_sets)
-        """
 
     def cluster_action(self):
+        # Declare time testing
+        opening_time = 0
+        clustering_time = 0
+        append_time = 0
         # Declare parameters
         folder_path = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        first_time = time.time()
         ADC_to_Ch_dict = get_ADC_to_Ch_dict()
         if folder_path != '':
+            start_time = time.time()
             # Iterate through all files in folder
             file_names = [f for f in os.listdir(folder_path) if f[-4:] == '.bin']
             file_paths = append_folder_and_files(folder_path + '/', file_names)
-            for file_path in file_paths:
-                # Import data
-                with open(file_path, mode='rb') as bin_file:
-                    content = bin_file.read()
-                    data = struct.unpack('I' * (len(content)//4), content)
-                # Cluster data
-                subset_clusters = cluster_data(data, ADC_to_Ch_dict, self)
-                subset_20_layers, subset_16_layers = subset_clusters
-                self.Clusters_20_layers = self.Clusters_20_layers.append(subset_20_layers)
-                self.Clusters_16_layers = self.Clusters_20_layers.append(subset_16_layers)
+            # Import all data to be clustered
+            start_time = time.time()
+            data_files = [None]*len(file_paths)
+            size = 0
+            # Import data
+            for i, file_path in enumerate(file_paths):
+                data_files[i] = np.fromfile(file_paths[0], dtype=np.dtype('u4'))
+                size += (len(data_files[i]) // 14)
+            opening_time = (time.time() - start_time)
+            print('Importing: %f [s]' % opening_time)
+            # Declare masks
+            start_time = time.time()
+            TimeStampMask = 0x3FFFFFFF
+            ADCMask = 0x00003FFF
+            # Declare all vectors needed
+            clusters = np.array([np.zeros([size], dtype=int),   # 0, wADC_m1_16
+                                 np.zeros([size], dtype=int),   # 1, wADC_m2_16
+                                 np.zeros([size], dtype=int),   # 2, wADC_Ch_m1_16
+                                 np.zeros([size], dtype=int),   # 3, wADC_Ch_m2_16
+                                 np.zeros([size], dtype=int),   # 4, wADC_m1_20
+                                 np.zeros([size], dtype=int),   # 5, wADC_m2_20
+                                 np.zeros([size], dtype=int),   # 6, wADC_Ch_m1_20
+                                 np.zeros([size], dtype=int),   # 7, wADC_Ch_m2_20
+                                 np.zeros([size], dtype=int),   # 8, gADC_m1
+                                 np.zeros([size], dtype=int),   # 9, gADC_m2
+                                 np.zeros([size], dtype=int),   # 10, gADC_Ch_m1
+                                 np.zeros([size], dtype=int),   # 11, gADC_Ch_m2
+                                 np.zeros([size], dtype=int)])  # 12, ToF
+            start = 0
+            for i, data_file in enumerate(data_files):
+                length = len(data_file)//14
+                matrix_T = np.reshape(data_file, (length, 14))
+                matrix = np.transpose(matrix_T)
+                clusters[0:12, start:(start+length)] = matrix[1:13, :] & ADCMask
+                clusters[12, start:(start+length)] = matrix[13, :] & TimeStampMask 
+                start += length
+            df_16 = pd.DataFrame({'wADC_m1': clusters[0],
+                                  'wADC_m2': clusters[1],
+                                  'wADC_Ch_m1': clusters[2],
+                                  'wADC_Ch_m2': clusters[3],
+                                  'wCh_m1': clusters[2],
+                                  'gADC_m1': clusters[8],
+                                  'gADC_m2': clusters[9],
+                                  'gADC_Ch_m1': clusters[10],
+                                  'gADC_Ch_m2': clusters[11],
+                                  'gCh_m1': clusters[10],
+                                  'gCh_m2': clusters[11],
+                                  'ToF': clusters[12]})
+            df_16['wCh_m1'] = df_16['wCh_m1'].map(ADC_to_Ch_dict['16_layers']['Wires']).values
+            df_16['gCh_m1'] = df_16['gCh_m1'].map(ADC_to_Ch_dict['16_layers']['Grids']).values
+            df_16['gCh_m2'] = df_16['gCh_m2'].map(ADC_to_Ch_dict['16_layers']['Grids']).values
+            df_20 = pd.DataFrame({'wADC_m1': clusters[4],
+                                  'wADC_m2': clusters[5],
+                                  'wADC_Ch_m1': clusters[6],
+                                  'wADC_Ch_m2': clusters[7],
+                                  'wCh_m1': clusters[6],
+                                  'gADC_m1': clusters[8],
+                                  'gADC_m2': clusters[9],
+                                  'gADC_Ch_m1': clusters[10],
+                                  'gADC_Ch_m2': clusters[11],
+                                  'gCh_m1': clusters[10],
+                                  'gCh_m2': clusters[11],
+                                  'ToF': clusters[12]})
+            df_20['wCh_m1'] = df_20['wCh_m1'].map(ADC_to_Ch_dict['20_layers']['Wires']).values
+            df_20['gCh_m1'] = df_20['gCh_m1'].map(ADC_to_Ch_dict['20_layers']['Grids']).values
+            df_20['gCh_m2'] = df_20['gCh_m2'].map(ADC_to_Ch_dict['20_layers']['Grids']).values
+            self.Clusters_16_layers = df_16
+            self.Clusters_20_layers = df_20
+            #print(df_16)
+            clustering_time = (time.time() - start_time)
+            print('Clustering: %f [s]' % clustering_time)
+            start_time = time.time()
             # Add data set to list of data sets
             self.data_sets += folder_path.rsplit('/', 1)[-1]
             # Assign data set name
@@ -90,6 +138,10 @@ class MainWindow(QMainWindow):
             self.app.processEvents()
             self.update()
             self.refresh_window()
+            window_update_time = (time.time() - start_time)
+            print('Window update: %f [s]' % window_update_time)
+        print('Total time')
+        print((time.time() - first_time))
 
     def save_action(self):
         save_path = QFileDialog.getSaveFileName()[0]
@@ -142,15 +194,7 @@ class MainWindow(QMainWindow):
     def help_action(self):
         print("HELP!!!!")
         gethelp()
-    """
-    def select_module_action(self):
-        if (self.module_button_16.isChecked() == True and self.module_button_20.isChecked() == True):
-            print("selecting both modules")
-        elif self.module_button_16.isChecked() == True:
-            print("selecting module 1, 16 by 4")
-        elif self.module_button_20.isChecked():
-            print("selecting module 2, 20 by 4") == True
-    """
+
 
     # ========================================================================
     # Helper Functions
