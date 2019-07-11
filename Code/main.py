@@ -52,6 +52,10 @@ class MainWindow(QMainWindow):
         folder_path = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
         first_time = time.time()
         ADC_to_Ch_dict = get_ADC_to_Ch_dict()
+        grid_di_20 = ADC_to_Ch_dict['20_layers']['Grids']
+        grid_di_16 = ADC_to_Ch_dict['16_layers']['Grids']
+        wire_di_20 = ADC_to_Ch_dict['20_layers']['Wires']
+        wire_di_16 = ADC_to_Ch_dict['16_layers']['Wires']
         if folder_path != '':
             start_time = time.time()
             # Iterate through all files in folder
@@ -74,16 +78,16 @@ class MainWindow(QMainWindow):
             # Declare all vectors needed
             clusters = np.array([np.zeros([size], dtype=int),   # 0, wADC_m1_16
                                  np.zeros([size], dtype=int),   # 1, wADC_m2_16
-                                 np.zeros([size], dtype=int),   # 2, wADC_Ch_m1_16
-                                 np.zeros([size], dtype=int),   # 3, wADC_Ch_m2_16
-                                 np.zeros([size], dtype=int),   # 4, wADC_m1_20
-                                 np.zeros([size], dtype=int),   # 5, wADC_m2_20
-                                 np.zeros([size], dtype=int),   # 6, wADC_Ch_m1_20
-                                 np.zeros([size], dtype=int),   # 7, wADC_Ch_m2_20
-                                 np.zeros([size], dtype=int),   # 8, gADC_m1
-                                 np.zeros([size], dtype=int),   # 9, gADC_m2
-                                 np.zeros([size], dtype=int),   # 10, gADC_Ch_m1
-                                 np.zeros([size], dtype=int),   # 11, gADC_Ch_m2
+                                 np.zeros([size], dtype=int),   # 8, wADC_Ch_m1_16
+                                 np.zeros([size], dtype=int),   # 9, wADC_Ch_m2_16
+                                 np.zeros([size], dtype=int),   # 2, wADC_m1_20
+                                 np.zeros([size], dtype=int),   # 3, wADC_m2_20
+                                 np.zeros([size], dtype=int),   # 10, wADC_Ch_m1_20
+                                 np.zeros([size], dtype=int),   # 11, wADC_Ch_m2_20
+                                 np.zeros([size], dtype=int),   # 4, gADC_m1
+                                 np.zeros([size], dtype=int),   # 5, gADC_m2
+                                 np.zeros([size], dtype=int),   # 6, gADC_Ch_m1
+                                 np.zeros([size], dtype=int),   # 7, gADC_Ch_m2
                                  np.zeros([size], dtype=int)])  # 12, ToF
             start = 0
             for i, data_file in enumerate(data_files):
@@ -93,39 +97,38 @@ class MainWindow(QMainWindow):
                 clusters[0:12, start:(start+length)] = matrix[1:13, :] & ADCMask
                 clusters[12, start:(start+length)] = matrix[13, :] & TimeStampMask 
                 start += length
-            df_16 = pd.DataFrame({'wADC_m1': clusters[0],
-                                  'wADC_m2': clusters[1],
-                                  'wADC_Ch_m1': clusters[2],
-                                  'wADC_Ch_m2': clusters[3],
-                                  'wCh_m1': clusters[2],
-                                  'gADC_m1': clusters[8],
-                                  'gADC_m2': clusters[9],
-                                  'gADC_Ch_m1': clusters[10],
-                                  'gADC_Ch_m2': clusters[11],
-                                  'gCh_m1': clusters[10],
-                                  'gCh_m2': clusters[11],
-                                  'ToF': clusters[12]})
-            df_16['wCh_m1'] = df_16['wCh_m1'].map(ADC_to_Ch_dict['16_layers']['Wires']).values
-            df_16['gCh_m1'] = df_16['gCh_m1'].map(ADC_to_Ch_dict['16_layers']['Grids']).values
-            df_16['gCh_m2'] = df_16['gCh_m2'].map(ADC_to_Ch_dict['16_layers']['Grids']).values
-            df_20 = pd.DataFrame({'wADC_m1': clusters[4],
-                                  'wADC_m2': clusters[5],
-                                  'wADC_Ch_m1': clusters[6],
-                                  'wADC_Ch_m2': clusters[7],
-                                  'wCh_m1': clusters[6],
-                                  'gADC_m1': clusters[8],
-                                  'gADC_m2': clusters[9],
-                                  'gADC_Ch_m1': clusters[10],
-                                  'gADC_Ch_m2': clusters[11],
-                                  'gCh_m1': clusters[10],
-                                  'gCh_m2': clusters[11],
-                                  'ToF': clusters[12]})
-            df_20['wCh_m1'] = df_20['wCh_m1'].map(ADC_to_Ch_dict['20_layers']['Wires']).values
-            df_20['gCh_m1'] = df_20['gCh_m1'].map(ADC_to_Ch_dict['20_layers']['Grids']).values
-            df_20['gCh_m2'] = df_20['gCh_m2'].map(ADC_to_Ch_dict['20_layers']['Grids']).values
-            self.Clusters_16_layers = df_16
-            self.Clusters_20_layers = df_20
-            #print(df_16)
+            # Perform channel mapping
+            wCh_m1_16 = pd.DataFrame({'a': clusters[8]})['a'].map(wire_di_16).values
+            gCh_m1_16 = pd.DataFrame({'a': clusters[6]})['a'].map(grid_di_16).values
+            gCh_m2_16 = pd.DataFrame({'a': clusters[7]})['a'].map(grid_di_16).values
+            wCh_m1_20 = pd.DataFrame({'a': clusters[10]})['a'].map(wire_di_20).values
+            gCh_m1_20 = pd.DataFrame({'a': clusters[6]})['a'].map(grid_di_20).values
+            gCh_m2_20 = pd.DataFrame({'a': clusters[7]})['a'].map(grid_di_20).values
+            # Create DataFrames 
+            self.Clusters_16_layers = pd.DataFrame({'wADC_m1': clusters[0],
+                                                    'wADC_m2': clusters[1],
+                                                    'wADC_Ch_m1': clusters[8],
+                                                    'wADC_Ch_m2': clusters[9],
+                                                    'wCh_m1': wCh_m1_16,
+                                                    'gADC_m1': clusters[4],
+                                                    'gADC_m2': clusters[5],
+                                                    'gADC_Ch_m1': clusters[6],
+                                                    'gADC_Ch_m2': clusters[7],
+                                                    'gCh_m1': gCh_m1_16,
+                                                    'gCh_m2': gCh_m2_16,
+                                                    'ToF': clusters[12]})
+            self.Clusters_20_layers = pd.DataFrame({'wADC_m1': clusters[2],
+                                                    'wADC_m2': clusters[3],
+                                                    'wADC_Ch_m1': clusters[10],
+                                                    'wADC_Ch_m2': clusters[11],
+                                                    'wCh_m1': wCh_m1_20,
+                                                    'gADC_m1': clusters[4],
+                                                    'gADC_m2': clusters[5],
+                                                    'gADC_Ch_m1': clusters[6],
+                                                    'gADC_Ch_m2': clusters[7],
+                                                    'gCh_m1': gCh_m1_20,
+                                                    'gCh_m2': gCh_m2_20,
+                                                    'ToF': clusters[12]})
             clustering_time = (time.time() - start_time)
             print('Clustering: %f [s]' % clustering_time)
             start_time = time.time()
