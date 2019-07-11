@@ -27,10 +27,18 @@ def Coincidences_2D_plot(window):
                      'ce_16': {'w': None, 'g': None}}
     # Select grids with highest collected charge
     for clusters, name in zip(clusters_vec, ['ce_20', 'ce_16']):
-        #print('gM=1')
-        #print(clusters['gADC_m1'])
-        #print('gM=2')
-        #print(clusters['gADC_m2'])
+        print('gADC_m1')
+        print(clusters['gADC_m1'])
+        print('gADC_m2')
+        print(clusters['gADC_m2'])
+        print('gCh_m1')
+        print(clusters['gCh_m1'])
+        print('gCh_2')
+        print(clusters['gCh_m2'])
+        print('wADC_m1')
+        print(clusters['wADC_m1'])
+        print('wCh_m1')
+        print(clusters['gCh_m1'])
         channels_g1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['gCh_m1']
         channels_w1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['wCh_m1']
         channels_g2 = clusters[clusters['gADC_m1'] <= clusters['gADC_m2']]['gCh_m2']
