@@ -39,12 +39,11 @@ def Coincidences_2D_plot(window):
     plt.title('16 layers')
 
     hist_all = plt.hist2d(clusters_dict['ce_16']['w'],
-                                      clusters_dict['ce_16']['g'],
-                                      bins=[64, 12],
-                                      range=[[-0.5, 63.5], [-0.5, 11.5]],
-                                      norm=LogNorm(), cmap='jet')#,     vmin=1, vmax=3)
+                          clusters_dict['ce_16']['g'],
+                          bins=[64, 12],
+                          range=[[-0.5, 63.5], [-0.5, 11.5]],
+                          norm=LogNorm(), cmap='jet')
     hist = hist_all[0]
-    #print(hist_all[0])
     els = []
     for row in hist:
         for i in row:
@@ -53,9 +52,6 @@ def Coincidences_2D_plot(window):
     min_16 = min(els)
     if min_16 == 0:
         min_16 = 1
-    #print(els)
-    #print(max_16)
-    #print(min_16)
     plt.xlabel('Wire [Channel number]')
     plt.ylabel('Grid [Channel number]')
     plt.colorbar()
@@ -64,7 +60,7 @@ def Coincidences_2D_plot(window):
     plt.hist2d(clusters_dict['ce_20']['w'], clusters_dict['ce_20']['g'], bins=[80, 12],
                 range=[[-0.5, 79.5], [-0.5, 11.5]],
                 norm=LogNorm(), cmap='jet', vmin=min_16, vmax=max_16)
-    print("Using color axis from 16-layers plot")
+    print("Using color axis from 16-layers plot also for 20-layers plot")
     plt.xlabel('Wire [Channel number]')
     plt.ylabel('Grid [Channel number]')
     fig.suptitle('Coincident events (2D) -- Data set(s): %s' % data_sets)
@@ -79,12 +75,14 @@ def Coincidences_2D_plot(window):
 
 def Coincidences_3D_plot(df, window):
     # Intial filter
-    df = filter_clusters(df, window)
+    #df = filter_clusters(df, window)
+    df_20 = window.Clusters_20_layers
+    df_16 = window.Clusters_16_layers
     # Declare max and min count
     min_count = 0
     max_count = np.inf
     # Initiate 'voxel_id -> (x, y, z)'-mapping
-    MG24_ch_to_coord = get_MG24_to_XYZ_mapping(window)
+    MG24_ch_to_coord_20, MG24_ch_to_coord_20 = get_MG24_to_XYZ_mapping(window)
     # Calculate 3D histogram
     H, edges = np.histogramdd(df[['wCh_3', 'gCh_1']].values,
                               bins=(80, 13),
