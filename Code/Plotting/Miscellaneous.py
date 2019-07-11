@@ -14,12 +14,12 @@ from Plotting.HelperFunctions import import_delimiter_table
 # =============================================================================
 
 
-def ToF_histogram(df, window):
+def ToF_histogram(window):
     # Get parameters
     number_bins = int(window.tofBins.text())
     # Produce histogram and plot
     fig = plt.figure()
-    plt.hist(df.ToF, bins=number_bins,
+    plt.hist(window.Clusters_16_layers.ToF, bins=number_bins,
              log=True, color='black', zorder=4,
              histtype='step', label='MG'
              )
@@ -117,7 +117,7 @@ def Channels_plot(window):
 # ============================================================================
 
 
-def ADC_plot(events, window):
+def ADC_plot(window):
     def PHS_1D_plot_bus(events, sub_title, number_bins):
         # Plot
         plt.title(sub_title)
@@ -129,24 +129,32 @@ def ADC_plot(events, window):
         plt.hist(events, bins=number_bins, range=[0, 4095],
                  histtype='step', color='black', zorder=5)
     # Declare parameters
-    attributes = ['gADC_1', 'gADC_2', 'wADC_1',
-                  'wADC_2', 'wADC_3', 'wADC_4']
-    rows = 3
-    cols = 2
+    attributes = ['gADC_m1', 'gADC_m2',
+                  'wADC_m1', 'wADC_m2',
+                  'wChADC_m1', 'wChADC_m2',
+                  'gChADC_m1', 'gChADC_m2']
+    rows = 4
+    cols = 4
     height = 12
     width = 10
-    number_bins = int(window.phsBins.text())
+    number_bins = int(window.chBins.text())
     # Prepare figure
     fig = plt.figure()
     fig.set_figheight(height)
     fig.set_figwidth(width)
     title = 'PHS (1D)\n(%s, ...)' % window.data_sets.splitlines()[0]
     fig.suptitle(title, x=0.5, y=1.03)
-    # Plot figure
+    # Plot figure - 16 layers
     for i, attribute in enumerate(attributes):
-        events_attribute = events[attribute]
+        events_attribute = window.Clusters_16_layers[attribute]
         plt.subplot(rows, cols, i+1)
-        sub_title = attribute
+        sub_title = attribute + ' (16 layers)'
         PHS_1D_plot_bus(events_attribute, sub_title, number_bins)
+    # Plot figure - 20 layers
+    for i, attribute in enumerate(attributes):
+            events_attribute = window.Clusters_20_layers[attribute]
+            plt.subplot(rows, cols, i+1+8)
+            sub_title = attribute + ' (20 layers)'
+            PHS_1D_plot_bus(events_attribute, sub_title, number_bins)
     plt.tight_layout()
     return fig

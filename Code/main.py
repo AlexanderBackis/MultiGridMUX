@@ -67,7 +67,7 @@ class MainWindow(QMainWindow):
             size = 0
             # Import data
             for i, file_path in enumerate(file_paths):
-                data_files[i] = np.fromfile(file_paths[0], dtype=np.dtype('u4'))
+                data_files[i] = np.fromfile(file_path, dtype=np.dtype('u4'))
                 size += (len(data_files[i]) // 14)
             opening_time = (time.time() - start_time)
             print('Importing: %f [s]' % opening_time)
@@ -78,14 +78,14 @@ class MainWindow(QMainWindow):
             # Declare all vectors needed
             clusters = np.array([np.zeros([size], dtype=int),   # 0, wADC_m1_16
                                  np.zeros([size], dtype=int),   # 1, wADC_m2_16
-                                 np.zeros([size], dtype=int),   # 8, wADC_Ch_m1_16
-                                 np.zeros([size], dtype=int),   # 9, wADC_Ch_m2_16
-                                 np.zeros([size], dtype=int),   # 2, wADC_m1_20
-                                 np.zeros([size], dtype=int),   # 3, wADC_m2_20
+                                 np.zeros([size], dtype=int),   # 4, wADC_Ch_m1_16
+                                 np.zeros([size], dtype=int),   # 5, wADC_Ch_m2_16
+                                 np.zeros([size], dtype=int),   # 8, wADC_m1_20
+                                 np.zeros([size], dtype=int),   # 9, wADC_m2_20
                                  np.zeros([size], dtype=int),   # 10, wADC_Ch_m1_20
                                  np.zeros([size], dtype=int),   # 11, wADC_Ch_m2_20
-                                 np.zeros([size], dtype=int),   # 4, gADC_m1
-                                 np.zeros([size], dtype=int),   # 5, gADC_m2
+                                 np.zeros([size], dtype=int),   # 2, gADC_m1
+                                 np.zeros([size], dtype=int),   # 3, gADC_m2
                                  np.zeros([size], dtype=int),   # 6, gADC_Ch_m1
                                  np.zeros([size], dtype=int),   # 7, gADC_Ch_m2
                                  np.zeros([size], dtype=int)])  # 12, ToF
@@ -98,7 +98,7 @@ class MainWindow(QMainWindow):
                 clusters[12, start:(start+length)] = matrix[13, :] & TimeStampMask
                 start += length
             # Perform channel mapping
-            wCh_m1_16 = pd.DataFrame({'a': clusters[8]})['a'].map(wire_di_16).values
+            wCh_m1_16 = pd.DataFrame({'a': clusters[4]})['a'].map(wire_di_16).values
             gCh_m1_16 = pd.DataFrame({'a': clusters[6]})['a'].map(grid_di_16).values
             gCh_m2_16 = pd.DataFrame({'a': clusters[7]})['a'].map(grid_di_16).values
             wCh_m1_20 = pd.DataFrame({'a': clusters[10]})['a'].map(wire_di_20).values
@@ -107,23 +107,23 @@ class MainWindow(QMainWindow):
             # Create DataFrames
             self.Clusters_16_layers = pd.DataFrame({'wADC_m1': clusters[0],
                                                     'wADC_m2': clusters[1],
-                                                    'wChADC_m1': clusters[8],
-                                                    'wChADC_m2': clusters[9],
+                                                    'wChADC_m1': clusters[4],
+                                                    'wChADC_m2': clusters[5],
                                                     'wCh_m1': wCh_m1_16,
-                                                    'gADC_m1': clusters[4],
-                                                    'gADC_m2': clusters[5],
+                                                    'gADC_m1': clusters[2],
+                                                    'gADC_m2': clusters[3],
                                                     'gChADC_m1': clusters[6],
                                                     'gChADC_m2': clusters[7],
                                                     'gCh_m1': gCh_m1_16,
                                                     'gCh_m2': gCh_m2_16,
                                                     'ToF': clusters[12]})
-            self.Clusters_20_layers = pd.DataFrame({'wADC_m1': clusters[2],
-                                                    'wADC_m2': clusters[3],
+            self.Clusters_20_layers = pd.DataFrame({'wADC_m1': clusters[8],
+                                                    'wADC_m2': clusters[9],
                                                     'wChADC_m1': clusters[10],
                                                     'wChADC_m2': clusters[11],
                                                     'wCh_m1': wCh_m1_20,
-                                                    'gADC_m1': clusters[4],
-                                                    'gADC_m2': clusters[5],
+                                                    'gADC_m1': clusters[2],
+                                                    'gADC_m2': clusters[3],
                                                     'gChADC_m1': clusters[6],
                                                     'gChADC_m2': clusters[7],
                                                     'gCh_m1': gCh_m1_20,
@@ -173,7 +173,7 @@ class MainWindow(QMainWindow):
 
     def ToF_action(self):
         if self.data_sets != '':
-            fig = ToF_histogram(self.Clusters, self)
+            fig = ToF_histogram(self)
             fig.show()
 
     def Channels_action(self):
@@ -183,7 +183,7 @@ class MainWindow(QMainWindow):
 
     def ADC_action(self):
         if self.data_sets != '':
-            fig = ADC_plot(self.Clusters, self)
+            fig = ADC_plot(self)
             fig.show()
 
     def Coincidences_2D_action(self):
