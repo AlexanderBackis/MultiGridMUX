@@ -107,25 +107,25 @@ class MainWindow(QMainWindow):
             # Create DataFrames
             self.Clusters_16_layers = pd.DataFrame({'wADC_m1': clusters[0],
                                                     'wADC_m2': clusters[1],
-                                                    'wADC_Ch_m1': clusters[8],
-                                                    'wADC_Ch_m2': clusters[9],
+                                                    'wChADC_m1': clusters[8],
+                                                    'wChADC_m2': clusters[9],
                                                     'wCh_m1': wCh_m1_16,
                                                     'gADC_m1': clusters[4],
                                                     'gADC_m2': clusters[5],
-                                                    'gADC_Ch_m1': clusters[6],
-                                                    'gADC_Ch_m2': clusters[7],
+                                                    'gChADC_m1': clusters[6],
+                                                    'gChADC_m2': clusters[7],
                                                     'gCh_m1': gCh_m1_16,
                                                     'gCh_m2': gCh_m2_16,
                                                     'ToF': clusters[12]})
             self.Clusters_20_layers = pd.DataFrame({'wADC_m1': clusters[2],
                                                     'wADC_m2': clusters[3],
-                                                    'wADC_Ch_m1': clusters[10],
-                                                    'wADC_Ch_m2': clusters[11],
+                                                    'wChADC_m1': clusters[10],
+                                                    'wChADC_m2': clusters[11],
                                                     'wCh_m1': wCh_m1_20,
                                                     'gADC_m1': clusters[4],
                                                     'gADC_m2': clusters[5],
-                                                    'gADC_Ch_m1': clusters[6],
-                                                    'gADC_Ch_m2': clusters[7],
+                                                    'gChADC_m1': clusters[6],
+                                                    'gChADC_m2': clusters[7],
                                                     'gCh_m1': gCh_m1_20,
                                                     'gCh_m2': gCh_m2_20,
                                                     'ToF': clusters[12]})
@@ -143,6 +143,7 @@ class MainWindow(QMainWindow):
             self.refresh_window()
             window_update_time = (time.time() - start_time)
             print('Window update: %f [s]' % window_update_time)
+            print(self.Clusters_20_layers)
         print('Total time')
         print((time.time() - first_time))
 
