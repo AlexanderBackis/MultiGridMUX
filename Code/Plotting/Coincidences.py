@@ -19,8 +19,8 @@ def Coincidences_2D_plot(window):
     df_20 = window.Clusters_20_layers
     df_16 = window.Clusters_16_layers
     # Intial filter
-    clusters_20 = df_20 #filter_clusters(df_20, window)
-    clusters_16 = df_16 #filter_clusters(df_16, window)
+    clusters_20 = filter_clusters(df_20, window)
+    clusters_16 = filter_clusters(df_16, window)
     #print(clusters_20)
     clusters_vec = [clusters_20, clusters_16]
     clusters_dict = {'ce_20': {'w': None, 'g': None},
