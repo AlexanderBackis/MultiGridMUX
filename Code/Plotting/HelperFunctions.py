@@ -68,6 +68,7 @@ def import_delimiter_table():
         #print(delimiters_dictionary[detector])
     return delimiters_dictionary
 
+
 def import_channel_mappings():
     # Import excel files
     dirname = os.path.dirname(__file__)
@@ -77,12 +78,13 @@ def import_channel_mappings():
     indices = [[1, 3], [5, 7]]
     detectors = ['20_layers', '16_layers']
     channel_mapping_table = {'20_layers': None, '16_layers': None}
-    for detector, (a, b) in zip(detectors, indices):
+    for detector, (a, b), layers in zip(detectors, indices, [20, 16]):
         wires, grids = {}, {}
         #print(detector)
         for row in matrix[1:]:
             if not np.isnan(row[a]):
-                wires.update({row[a]: row[a-1]})
+                row_start = (row[a-1]//layers)*layers
+                wires.update({row[a]: (3*layers - row_start) + (row[a-1] - row_start)})
             if not np.isnan(row[b]):
                 grids.update({row[b]: row[b-1]})
         channel_mapping_table[detector] = {'Wires': wires,
