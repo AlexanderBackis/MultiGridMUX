@@ -50,7 +50,9 @@ class MainWindow(QMainWindow):
         clustering_time = 0
         append_time = 0
         # Declare parameters
-        folder_path = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        folder_path = str(QFileDialog.getExistingDirectory(self,
+                                                           "Select Directory",
+                                                           "../Data"))
         first_time = time.time()
         ADC_to_Ch_dict = get_ADC_to_Ch_dict()
         grid_di_20 = ADC_to_Ch_dict['20_layers']['Grids']
