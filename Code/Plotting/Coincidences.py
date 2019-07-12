@@ -27,18 +27,18 @@ def Coincidences_2D_plot(window):
                      'ce_16': {'w': None, 'g': None}}
     # Select grids with highest collected charge
     for clusters, name in zip(clusters_vec, ['ce_20', 'ce_16']):
-        print('gADC_m1')
-        print(clusters['gADC_m1'])
-        print('gADC_m2')
-        print(clusters['gADC_m2'])
-        print('gCh_m1')
-        print(clusters['gCh_m1'])
-        print('gCh_2')
-        print(clusters['gCh_m2'])
-        print('wADC_m1')
-        print(clusters['wADC_m1'])
-        print('wCh_m1')
-        print(clusters['gCh_m1'])
+        #print('gADC_m1')
+        #print(clusters['gADC_m1'])
+        #print('gADC_m2')
+        #print(clusters['gADC_m2'])
+        #print('gCh_m1')
+        #print(clusters['gCh_m1'])
+        #print('gCh_2')
+        #print(clusters['gCh_m2'])
+        #print('wADC_m1')
+        #print(clusters['wADC_m1'])
+        #print('wCh_m1')
+        #print(clusters['gCh_m1'])
         channels_g1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['gCh_m1']
         channels_w1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['wCh_m1']
         channels_g2 = clusters[clusters['gADC_m1'] <= clusters['gADC_m2']]['gCh_m2']
@@ -90,10 +90,10 @@ def Coincidences_3D_plot(window):
     #df = filter_clusters(df, window)
     df_20 = window.Clusters_20_layers
     df_16 = window.Clusters_16_layers
-    print(df_20[['wCh_m1', 'gCh_m1']])
+    #print(df_20[['wCh_m1', 'gCh_m1']])
     # Intial filter
-    clusters_20 = df_20 #filter_clusters(df_20, window)
-    clusters_16 = df_16 #filter_clusters(df_16, window)
+    clusters_20 = filter_clusters(df_20, window)
+    clusters_16 = filter_clusters(df_16, window)
     clusters_vec = [clusters_20, clusters_16]
     clusters_dict = {'ce_20': {'w': None, 'g': None},
                      'ce_16': {'w': None, 'g': None}}
@@ -113,20 +113,18 @@ def Coincidences_3D_plot(window):
     MG24_ch_to_coord_20, MG24_ch_to_coord_16 = get_MG24_to_XYZ_mapping(window)
     #print(MG24_ch_to_coord_16)
 
-    print("20 wires", clusters_dict['ce_20']['w'])
-    print("20 grids", clusters_dict['ce_20']['g'])
-    wires = clusters_dict['ce_20']['w']
-
-
-
-
+    #print("20 wires", clusters_dict['ce_20']['w'].values)
+    #print("20 grids", clusters_dict['ce_20']['g'].values)
+    ##wires = clusters_dict['ce_20']['w']
+    #print(np.array([clusters_dict['ce_20']['w'].values,
+    #                clusters_dict['ce_20']['g'].values]))
 
     # Calculate 3D histogram
-    H_20, edges_20 = np.histogramdd(np.array(clusters_dict['ce_20']['w'], clusters_dict['ce_20']['g'])#,
-                              #bins=(80, 13),
-                              #range=((0, 80), (0, 13))
-                              )
-    print("edges", edges_20)
+    H_20, edges_20 = np.histogramdd((clusters_dict['ce_20']['w'].values,
+                                     clusters_dict['ce_20']['g'].values),
+                              bins=(80, 13),
+                              range=((0, 80), (0, 13)))
+
     # Insert results into an array
     hist_20 = [[], [], [], []]
     loc_20 = 0
@@ -141,49 +139,70 @@ def Coincidences_3D_plot(window):
                 hist_20[1].append(coord['y'])
                 hist_20[2].append(coord['z'])
                 hist_20[3].append(H_20[wCh, gCh])
-                loc += 1
-                labels.append('Wire Channel: ' + str(wCh) + '<br>'
+                loc_20 += 1
+                labels_20.append('Wire Channel: ' + str(wCh) + '<br>'
                               + 'Grid Channel: ' + str(gCh) + '<br>'
                               + 'Counts: ' + str(H_20[wCh, gCh])
                               )
-
-    """
-    # Calculate 3D histogram
-    H_16, edges_16 = np.histogramdd(df[['wCh_m1', 'gCh_m1']].values,
-                              bins=(80, 13),
-                              range=((0, 80), (0, 13))
+    # for 16 layers
+    H_16, edges_16 = np.histogramdd((clusters_dict['ce_16']['w'].values,
+                                     clusters_dict['ce_16']['g'].values),
+                              bins=(64, 13),
+                              range=((0, 64), (0, 13))
                               )
+
     # Insert results into an array
-    hist = [[], [], [], []]
-    loc = 0
-    labels = []
-    for wCh in range(0, 80):
+    hist_16 = [[], [], [], []]
+    loc_16 = 0
+    labels_16 = []
+    for wCh in range(0, 64):
         for gCh in range(0, 13):
-            over_min = H[wCh, gCh] > min_count
-            under_max = H[wCh, gCh] <= max_count
+            over_min = H_16[wCh, gCh] > min_count
+            under_max = H_16[wCh, gCh] <= max_count
             if over_min and under_max:
-                coord = MG24_ch_to_coord[gCh, wCh]
-                hist[0].append(coord['x'])
-                hist[1].append(coord['y'])
-                hist[2].append(coord['z'])
-                hist[3].append(H[wCh, gCh])
-                loc += 1
-                labels.append('Wire Channel: ' + str(wCh) + '<br>'
+                coord = MG24_ch_to_coord_16[gCh, wCh]
+                hist_16[0].append(coord['x'])
+                hist_16[1].append(coord['y'])
+                hist_16[2].append(coord['z'])
+                hist_16[3].append(H_16[wCh, gCh])
+                loc_16 += 1
+                labels_16.append('Wire Channel: ' + str(wCh) + '<br>'
                               + 'Grid Channel: ' + str(gCh) + '<br>'
-                              + 'Counts: ' + str(H[wCh, gCh])
+                              + 'Counts: ' + str(H_16[wCh, gCh])
                               )
 
-    """
+    #print("hist20", hist_20[3])
+    #print("hist16", hist_16[3])
 
-    # hist20 and hist16 together
-    # add y offset here:
+
+    labels = []
+    labels.extend(labels_20)
+    labels.extend(labels_16)
+
     # Produce 3D histogram plot
+    hist = [[], [], [], []]
+    hist_x_offset = [i + 100 for i in hist_20[0]]
+    hist_z_offset = [i +  40 for i in hist_16[2]]
+    hist[0].extend(hist_x_offset)
+    hist[0].extend(hist_16[0])
+    hist[1].extend(hist_20[1])
+    hist[1].extend(hist_16[1])
+    hist[2].extend(hist_20[2])
+    hist[2].extend(hist_z_offset)
+    hist[3].extend(hist_20[3])
+    hist[3].extend(hist_16[3])
+
+    #print(hist_20[0])
+    #print("hist0", hist[0])
+    #print("hist1", hist[1])
+    #print("hist2", hist[2])
+    #print("hist3", hist[3])
     MG_3D_trace = go.Scatter3d(x=hist[0],
                                y=hist[1],
                                z=hist[2],
                                mode='markers',
                                marker=dict(size=20,
-                                           color=np.log10(hist[3]),
+                                           color=(np.log10(hist[3])),
                                            colorscale='Jet',
                                            opacity=1,
                                            colorbar=dict(thickness=20,

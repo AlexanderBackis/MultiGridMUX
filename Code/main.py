@@ -65,7 +65,7 @@ class MainWindow(QMainWindow):
 
     def cluster_action(self):
         # Declare parameters
-        folder_path = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        folder_path = str(QFileDialog.getExistingDirectory(self, "Select Directory", "../Data"))
         ADC_to_Ch_dict = get_ADC_to_Ch_dict()
         if folder_path != '':
             # Iterate through all files in folder
