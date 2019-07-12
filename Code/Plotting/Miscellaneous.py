@@ -150,6 +150,11 @@ def ADC_plot(window):
         plt.subplot(rows, cols, i+1)
         sub_title = attribute + ' (16 layers)'
         PHS_1D_plot_bus(events_attribute, sub_title, number_bins)
+    for i, attribute in enumerate(attributes):
+        events_attribute = window.Clusters_20_layers[attribute]
+        plt.subplot(rows, cols, i+1+8)
+        sub_title = attribute + ' (20 layers)'
+        PHS_1D_plot_bus(events_attribute, sub_title, number_bins)
     # Plot figure - 20 layers
     for i, attribute in enumerate(attributes):
             events_attribute = window.Clusters_20_layers[attribute]
