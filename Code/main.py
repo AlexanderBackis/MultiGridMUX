@@ -166,7 +166,7 @@ class MainWindow(QMainWindow):
 
     def PHS_1D_action(self):
         if self.data_sets != '':
-            fig = PHS_1D_plot(self.Clusters, self)
+            fig = PHS_1D_plot(self)
             fig.show()
 
     def PHS_2D_action(self):

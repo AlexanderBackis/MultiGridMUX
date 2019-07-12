@@ -21,24 +21,11 @@ def Coincidences_2D_plot(window):
     # Intial filter
     clusters_20 = filter_clusters(df_20, window)
     clusters_16 = filter_clusters(df_16, window)
-    #print(clusters_20)
     clusters_vec = [clusters_20, clusters_16]
     clusters_dict = {'ce_20': {'w': None, 'g': None},
                      'ce_16': {'w': None, 'g': None}}
     # Select grids with highest collected charge
     for clusters, name in zip(clusters_vec, ['ce_20', 'ce_16']):
-        #print('gADC_m1')
-        #print(clusters['gADC_m1'])
-        #print('gADC_m2')
-        #print(clusters['gADC_m2'])
-        #print('gCh_m1')
-        #print(clusters['gCh_m1'])
-        #print('gCh_2')
-        #print(clusters['gCh_m2'])
-        #print('wADC_m1')
-        #print(clusters['wADC_m1'])
-        #print('wCh_m1')
-        #print(clusters['gCh_m1'])
         channels_g1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['gCh_m1']
         channels_w1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['wCh_m1']
         channels_g2 = clusters[clusters['gADC_m1'] <= clusters['gADC_m2']]['gCh_m2']
@@ -89,10 +76,8 @@ def Coincidences_2D_plot(window):
 
 def Coincidences_3D_plot(window):
     # Intial filter
-    #df = filter_clusters(df, window)
     df_20 = window.Clusters_20_layers
     df_16 = window.Clusters_16_layers
-    #print(df_20[['wCh_m1', 'gCh_m1']])
     # Intial filter
     clusters_20 = filter_clusters(df_20, window)
     clusters_16 = filter_clusters(df_16, window)
@@ -113,13 +98,6 @@ def Coincidences_3D_plot(window):
     max_count = np.inf
     # Initiate 'voxel_id -> (x, y, z)'-mapping
     MG24_ch_to_coord_20, MG24_ch_to_coord_16 = get_MG24_to_XYZ_mapping(window)
-    #print(MG24_ch_to_coord_16)
-
-    #print("20 wires", clusters_dict['ce_20']['w'].values)
-    #print("20 grids", clusters_dict['ce_20']['g'].values)
-    ##wires = clusters_dict['ce_20']['w']
-    #print(np.array([clusters_dict['ce_20']['w'].values,
-    #                clusters_dict['ce_20']['g'].values]))
 
     # Calculate 3D histogram
     H_20, edges_20 = np.histogramdd((clusters_dict['ce_20']['w'].values,
@@ -173,10 +151,6 @@ def Coincidences_3D_plot(window):
                               + 'Counts: ' + str(H_16[wCh, gCh])
                               )
 
-    #print("hist20", hist_20[3])
-    #print("hist16", hist_16[3])
-
-
     labels = []
     labels.extend(labels_20)
     labels.extend(labels_16)
@@ -194,11 +168,6 @@ def Coincidences_3D_plot(window):
     hist[3].extend(hist_20[3])
     hist[3].extend(hist_16[3])
 
-    #print(hist_20[0])
-    #print("hist0", hist[0])
-    #print("hist1", hist[1])
-    #print("hist2", hist[2])
-    #print("hist3", hist[3])
     MG_3D_trace = go.Scatter3d(x=hist[0],
                                y=hist[1],
                                z=hist[2],
@@ -355,9 +324,6 @@ def get_MG24_to_XYZ_mapping(window):
     LayerSpacing = 23.5
     GridSpacing = 23.5
     # Iterate over all channels and create mapping
-    #grid_20_layers = select_grid()[0]
-    #grid_16_layers = select_grid()[1]
-    #if whichgrid == "layers_20":
     MG24_ch_to_coord_20 = np.empty((13, 80), dtype='object')
     for gCh in np.arange(0, 13, 1):
         for wCh in np.arange(0, 80, 1):
@@ -365,7 +331,6 @@ def get_MG24_to_XYZ_mapping(window):
             y = gCh * GridSpacing
             z = (wCh % 20) * WireSpacing
             MG24_ch_to_coord_20[gCh, wCh] = {'x': x, 'y': y, 'z': z}
-    #elif whichgrid == "layers_16":
     MG24_ch_to_coord_16 = np.empty((13, 64), dtype='object')
     for gCh in np.arange(0, 13, 1):
         for wCh in np.arange(0, 64, 1):
