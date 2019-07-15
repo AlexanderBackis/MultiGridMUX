@@ -6,6 +6,7 @@ import plotly.graph_objs as go
 import pandas as pd
 import plotly.io as pio
 import os
+import fast_histogram as fh
 from Plotting.HelperFunctions import filter_clusters
 
 # =============================================================================
@@ -27,18 +28,6 @@ def Coincidences_2D_plot(window):
                      'ce_16': {'w': None, 'g': None}}
     # Select grids with highest collected charge
     for clusters, name in zip(clusters_vec, ['ce_20', 'ce_16']):
-        #print('gADC_m1')
-        #print(clusters['gADC_m1'])
-        #print('gADC_m2')
-        #print(clusters['gADC_m2'])
-        #print('gCh_m1')
-        #print(clusters['gCh_m1'])
-        #print('gCh_2')
-        #print(clusters['gCh_m2'])
-        #print('wADC_m1')
-        #print(clusters['wADC_m1'])
-        #print('wCh_m1')
-        #print(clusters['gCh_m1'])
         channels_g1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['gCh_m1']
         channels_w1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['wCh_m1']
         channels_g2 = clusters[clusters['gADC_m1'] <= clusters['gADC_m2']]['gCh_m2']
@@ -49,30 +38,25 @@ def Coincidences_2D_plot(window):
     fig = plt.figure()
     plt.subplot(1, 2, 1)
     plt.title('16 layers')
-
-    hist_all = plt.hist2d(clusters_dict['ce_16']['w'],
-                          clusters_dict['ce_16']['g'],
-                          bins=[64, 12],
-                          range=[[-0.5, 63.5], [-0.5, 11.5]],
-                          norm=LogNorm(), cmap='jet')
-    hist = hist_all[0]
-    els = []
-    for row in hist:
-        for i in row:
-            els.append(i)
-    max_16 = max(els)
-    min_16 = min(els)
-    if min_16 == 0:
-        min_16 = 1
+    hist_all = fh.histogram2d(clusters_dict['ce_16']['w'],
+                              clusters_dict['ce_16']['g'],
+                              range=[[-0.5, 63.5], [-0.5, 11.5]],
+                              bins=[64, 12])
+    plt.imshow(np.transpose(hist_all), norm=LogNorm(), cmap='jet',
+                            origin='lower', interpolation='nearest',
+                            aspect='auto')
     plt.xlabel('Wires')
     plt.ylabel('Grids')
     plt.colorbar()
     plt.subplot(1, 2, 2)
     plt.title('20 layers')
-    plt.hist2d(clusters_dict['ce_20']['w'], clusters_dict['ce_20']['g'],
-               bins=[80, 12],
-               range=[[-0.5, 79.5], [-0.5, 11.5]],
-               norm=LogNorm(), cmap='jet', vmin=min_16, vmax=max_16)
+    hist_all = fh.histogram2d(clusters_dict['ce_20']['w'],
+                              clusters_dict['ce_20']['g'],
+                              range=[[-0.5, 79.5], [-0.5, 11.5]],
+                              bins=[80, 12])
+    plt.imshow(np.transpose(hist_all), norm=LogNorm(), cmap='jet',
+                            origin='lower', interpolation='nearest',
+                            aspect='auto')
     print("Using color axis from 16-layers plot also for 20-layers plot")
     plt.xlabel('Wires')
     plt.ylabel('Grids')
