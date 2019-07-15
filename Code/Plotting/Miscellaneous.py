@@ -106,7 +106,6 @@ def Channels_plot(window):
             delimiters.extend(delimiter_table['16_layers']['Grids'])
         sub_title = attribute + ' -- both layers'
         channels_plot_bus(events_attribute_grids, sub_title, number_bins, delimiters)
-    print("Order of the grids might be wrong in grid channel plots")
 
     plt.tight_layout()
     return fig
