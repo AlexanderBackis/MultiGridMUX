@@ -77,12 +77,17 @@ def import_channel_mappings():
     indices = [[1, 3], [5, 7]]
     detectors = ['20_layers', '16_layers']
     channel_mapping_table = {'20_layers': None, '16_layers': None}
-    for detector, (a, b) in zip(detectors, indices):
+    for detector, (a, b), layers in zip(detectors, indices, [20, 16]):
         wires, grids = {}, {}
         #print(detector)
         for row in matrix[1:]:
             if not np.isnan(row[a]):
-                wires.update({row[a]: row[a-1]})
+                if layers == 16:
+                    row_start = (row[a-1]//layers)*layers
+                    value = row[a-1]  #(3*layers - row_start) + (row[a-1] - row_start)
+                else:
+                    value = row[a-1]
+                wires.update({row[a]: value })
             if not np.isnan(row[b]):
                 grids.update({row[b]: row[b-1]})
         channel_mapping_table[detector] = {'Wires': wires,
