@@ -6,6 +6,7 @@ import plotly.graph_objs as go
 import pandas as pd
 import plotly.io as pio
 import os
+from Plotting.HelperFunctions import import_delimiter_table
 
 
 # =============================================================================
@@ -13,12 +14,12 @@ import os
 # =============================================================================
 
 
-def ToF_histogram(df, window):
+def ToF_histogram(window):
     # Get parameters
     number_bins = int(window.tofBins.text())
     # Produce histogram and plot
     fig = plt.figure()
-    plt.hist(df.ToF, bins=number_bins,
+    plt.hist(window.Clusters_16_layers.ToF, bins=number_bins,
              log=True, color='black', zorder=4,
              histtype='step', label='MG'
              )
@@ -36,7 +37,7 @@ def ToF_histogram(df, window):
 # =============================================================================
 
 
-def Channels_plot(events, window):
+def Channels_plot(window):
     def channels_plot_bus(events, sub_title, number_bins, delimiters):
         # Plot
         plt.title(sub_title)
@@ -59,19 +60,15 @@ def Channels_plot(events, window):
                 plt.axvline(small_delimiter, color='blue', zorder=2)
 
     # Declare parameters
-    if window.MG_CNCS.isChecked():
-        attributes = ['gChADC_1', 'gChADC_2', 'wChADC_1', 'wChADC_2']
-        rows = 2
-        cols = 2
-        height = 8
-        width = 10
-    else:
-        attributes = ['wChADC_1', 'wChADC_2', 'gChADC_1',
-                      'gChADC_2', 'wChADC_3', 'wChADC_4']
-        rows = 3
-        cols = 2
-        height = 12
-        width = 10
+    df_20 = window.Clusters_20_layers
+    df_16 = window.Clusters_16_layers
+    attributes_20 = ['wChADC_m1', 'wChADC_m2']
+    attributes_16 = ['wChADC_m1', 'wChADC_m2']
+    attributes_grids = ['gChADC_m1', 'gChADC_m2']
+    rows = 3
+    cols = 2
+    height = 12
+    width = 10
     number_bins = int(window.chBins.text())
     delimiter_table = import_delimiter_table()
     # Prepare figure
@@ -81,15 +78,35 @@ def Channels_plot(events, window):
     title = 'Channels (1D)\n(%s, ...)' % window.data_sets.splitlines()[0]
     fig.suptitle(title, x=0.5, y=1.03)
     # Plot figure
-    for i, attribute in enumerate(attributes):
-        events_attribute = events[attribute]
+    for i, attribute in enumerate(attributes_20):
+        events_attribute_20 = df_20[attribute]
         plt.subplot(rows, cols, i+1)
         sub_title = attribute
+        if sub_title[0] == 'w' and sub_title[-1] == '1':
+            delimiters_20 = delimiter_table['20_layers']['Wires']
+        sub_title = attribute + ' -- 20 layers'
+        channels_plot_bus(events_attribute_20, sub_title, number_bins, delimiters_20)
+
+    for i, attribute in enumerate(attributes_16):
+        events_attribute_16 = df_16[attribute]
+        plt.subplot(rows, cols, i+3)
+        sub_title = attribute
+        if sub_title[0] == 'w' and sub_title[-1] == '1':
+            delimiters_16 = delimiter_table['16_layers']['Wires']
+        sub_title = attribute + ' -- 16 layers'
+        channels_plot_bus(events_attribute_16, sub_title, number_bins, delimiters_16)
+
+    for i, attribute in enumerate(attributes_grids):
+        events_attribute_grids = df_20[attribute]
+        plt.subplot(rows, cols, i+5)
+        sub_title = attribute
+        delimiters = []
         if sub_title[0] == 'g':
-            delimiters = delimiter_table['Grids']
-        else:
-            delimiters = delimiter_table['Wires']
-        channels_plot_bus(events_attribute, sub_title, number_bins, delimiters)
+            delimiters.extend(delimiter_table['20_layers']['Grids'])
+            delimiters.extend(delimiter_table['16_layers']['Grids'])
+        sub_title = attribute + ' -- both layers'
+        channels_plot_bus(events_attribute_grids, sub_title, number_bins, delimiters)
+
     plt.tight_layout()
     return fig
 
@@ -99,7 +116,7 @@ def Channels_plot(events, window):
 # ============================================================================
 
 
-def ADC_plot(events, window):
+def ADC_plot(window):
     def PHS_1D_plot_bus(events, sub_title, number_bins):
         # Plot
         plt.title(sub_title)
@@ -111,58 +128,37 @@ def ADC_plot(events, window):
         plt.hist(events, bins=number_bins, range=[0, 4095],
                  histtype='step', color='black', zorder=5)
     # Declare parameters
-    if window.MG_CNCS.isChecked():
-        attributes = ['gADC_1', 'gADC_2', 'wADC_1', 'wADC_2']
-        rows = 2
-        cols = 2
-        height = 8
-        width = 10
-    else:
-        attributes = ['gADC_1', 'gADC_2', 'wADC_1',
-                      'wADC_2', 'wADC_3', 'wADC_4']
-        rows = 3
-        cols = 2
-        height = 12
-        width = 10
-    number_bins = int(window.phsBins.text())
+    attributes = ['gADC_m1', 'gADC_m2',
+                  'wADC_m1', 'wADC_m2',
+                  'wChADC_m1', 'wChADC_m2',
+                  'gChADC_m1', 'gChADC_m2']
+    rows = 4
+    cols = 4
+    height = 12
+    width = 10
+    number_bins = int(window.chBins.text())
     # Prepare figure
     fig = plt.figure()
     fig.set_figheight(height)
     fig.set_figwidth(width)
     title = 'PHS (1D)\n(%s, ...)' % window.data_sets.splitlines()[0]
     fig.suptitle(title, x=0.5, y=1.03)
-    # Plot figure
+    # Plot figure - 16 layers
     for i, attribute in enumerate(attributes):
-        events_attribute = events[attribute]
+        events_attribute = window.Clusters_16_layers[attribute]
         plt.subplot(rows, cols, i+1)
-        sub_title = attribute
+        sub_title = attribute + ' (16 layers)'
         PHS_1D_plot_bus(events_attribute, sub_title, number_bins)
+    for i, attribute in enumerate(attributes):
+        events_attribute = window.Clusters_20_layers[attribute]
+        plt.subplot(rows, cols, i+1+8)
+        sub_title = attribute + ' (20 layers)'
+        PHS_1D_plot_bus(events_attribute, sub_title, number_bins)
+    # Plot figure - 20 layers
+    for i, attribute in enumerate(attributes):
+            events_attribute = window.Clusters_20_layers[attribute]
+            plt.subplot(rows, cols, i+1+8)
+            sub_title = attribute + ' (20 layers)'
+            PHS_1D_plot_bus(events_attribute, sub_title, number_bins)
     plt.tight_layout()
     return fig
-
-
-
-
-# =============================================================================
-# Helper Functions
-# =============================================================================
-
-def import_delimiter_table():
-    dirname = os.path.dirname(__file__)
-    path = os.path.join(dirname, '../../Tables/Histogram_delimiters.xlsx')
-    matrix = pd.read_excel(path).values
-    wires, grids = [], []
-    for row in matrix[1:]:
-        wires.append(np.array([row[0], row[1]]))
-        if not np.isnan(row[2]):
-            grids.append(np.array([row[2], row[3]]))
-    return {'Wires': np.array(wires), 'Grids': np.array(grids)}
-
-
-
-
-
-
-
-
-
