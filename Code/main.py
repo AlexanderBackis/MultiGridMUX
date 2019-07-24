@@ -136,7 +136,7 @@ class MainWindow(QMainWindow):
             print('Clustering: %f [s]' % clustering_time)
             start_time = time.time()
             # Add data set to list of data sets
-            self.data_sets += folder_path.rsplit('/', 1)[-1]
+            self.data_sets = folder_path.rsplit('/', 1)[-1]
             # Assign data set name
             self.data_sets_browser.setText(self.data_sets)
             self.update()

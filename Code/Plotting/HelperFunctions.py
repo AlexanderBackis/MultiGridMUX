@@ -84,7 +84,7 @@ def import_channel_mappings():
             if not np.isnan(row[a]):
                 if layers == 16:
                     row_start = (row[a-1]//layers)*layers
-                    value = row[a-1]  #(3*layers - row_start) + (row[a-1] - row_start)
+                    value = (3*layers - row_start) + (row[a-1] - row_start)  # row[a-1]  #
                 else:
                     value = row[a-1]
                 wires.update({row[a]: value })

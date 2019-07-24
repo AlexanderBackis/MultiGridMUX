@@ -204,11 +204,11 @@ def Coincidences_3D_plot(window):
                                z=hist[2],
                                mode='markers',
                                marker=dict(size=20,
-                                           color=(np.log10(hist[3])),
+                                           color=hist[3], #(np.log10(hist[3])),
                                            colorscale='Jet',
                                            opacity=1,
                                            colorbar=dict(thickness=20,
-                                                         title='log10(counts)'
+                                                         title='Counts'
                                                          ),
                                            ),
                                text=labels,
@@ -225,7 +225,7 @@ def Coincidences_3D_plot(window):
     fig['layout']['scene1']['xaxis'].update(title='x [mm]')
     fig['layout']['scene1']['yaxis'].update(title='y [mm]')
     fig['layout']['scene1']['zaxis'].update(title='z [mm]')
-    fig['layout'].update(title='Coincidences (3D)')
+    fig['layout'].update(title='Coincidences (3D) - ' + window.data_sets)
     fig.layout.showlegend = False
     # If in plot He3-tubes histogram, return traces, else save HTML and plot
     py.offline.plot(fig,
@@ -355,19 +355,16 @@ def get_MG24_to_XYZ_mapping(window):
     LayerSpacing = 23.5
     GridSpacing = 23.5
     # Iterate over all channels and create mapping
-    #grid_20_layers = select_grid()[0]
-    #grid_16_layers = select_grid()[1]
-    #if whichgrid == "layers_20":
-    MG24_ch_to_coord_20 = np.empty((13, 80), dtype='object')
-    for gCh in np.arange(0, 13, 1):
+    MG24_ch_to_coord_20 = np.empty((12, 80), dtype='object')
+    for gCh in np.arange(0, 12, 1):
         for wCh in np.arange(0, 80, 1):
             x = (wCh // 20) * LayerSpacing
             y = gCh * GridSpacing
             z = (wCh % 20) * WireSpacing
             MG24_ch_to_coord_20[gCh, wCh] = {'x': x, 'y': y, 'z': z}
     #elif whichgrid == "layers_16":
-    MG24_ch_to_coord_16 = np.empty((13, 64), dtype='object')
-    for gCh in np.arange(0, 13, 1):
+    MG24_ch_to_coord_16 = np.empty((12, 64), dtype='object')
+    for gCh in np.arange(0, 12, 1):
         for wCh in np.arange(0, 64, 1):
             x = (wCh // 16) * LayerSpacing
             y = gCh * GridSpacing
