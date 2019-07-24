@@ -229,7 +229,7 @@ def Coincidences_3D_plot(window):
     fig.layout.showlegend = False
     # If in plot He3-tubes histogram, return traces, else save HTML and plot
     py.offline.plot(fig,
-                    filename='../Results/Ce3Dhistogram.html',
+                    filename='../Results/Coincidences_3D/Ce3Dhistogram.html',
                     auto_open=True)
     #pio.write_image(fig, '../Results/HTML_files/Ce3Dhistogram.pdf')
 
