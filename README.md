@@ -13,3 +13,19 @@ The program consists of a GUI Interface which allows the user to cluster and ana
 - Anaconda (https://www.anaconda.com/distribution/)
 
 ## Installation
+Install dependencies:
+```
+conda install -c anaconda pyqt 
+conda install -c plotly plotly
+```
+
+Clone the repository:
+```
+git clone https://github.com/AlexanderBackis/MultiGridMUX.git
+```
+
+## Execution
+Navigate to MultiGridMUX->Code and enter:
+```
+python main.py
+```
