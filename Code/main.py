@@ -13,7 +13,7 @@ import time
 from contextlib import ExitStack
 
 from cluster import cluster_data, save_data, load_data
-from Plotting.PHS import PHS_1D_plot, PHS_2D_plot
+from Plotting.PHS import PHS_1D_plot, PHS_2D_plot, PHS_Individual_plot
 from Plotting.Coincidences import (Coincidences_2D_plot, Coincidences_3D_plot,
                                    Coincidences_Front_Top_Side_plot)
 from Plotting.Miscellaneous import ToF_histogram, Channels_plot, ADC_plot
@@ -149,6 +149,8 @@ class MainWindow(QMainWindow):
             #print(self.Clusters_20_layers)
         print('Total time')
         print((time.time() - first_time))
+        print()
+        print()
 
     def save_action(self):
         save_path = QFileDialog.getSaveFileName()[0]
@@ -173,6 +175,10 @@ class MainWindow(QMainWindow):
         if self.data_sets != '':
             fig = PHS_2D_plot(self)
             fig.show()
+
+    def PHS_Individual_action(self):
+        if self.data_sets != '':
+            PHS_Individual_plot(self)
 
     def ToF_action(self):
         if self.data_sets != '':
@@ -220,6 +226,7 @@ class MainWindow(QMainWindow):
         # Plotting
         self.PHS_1D_button.clicked.connect(self.PHS_1D_action)
         self.PHS_2D_button.clicked.connect(self.PHS_2D_action)
+        self.PHS_Individual_button.clicked.connect(self.PHS_Individual_action)
         self.Coincidences_2D_button.clicked.connect(self.Coincidences_2D_action)
         self.Coincidences_3D_button.clicked.connect(self.Coincidences_3D_action)
         self.Coincidences_Front_Top_Side_button.clicked.connect(self.Coincidences_Front_Top_Side_action)
@@ -242,20 +249,6 @@ class MainWindow(QMainWindow):
 # =============================================================================
 # Helper Functions
 # =============================================================================
-
-def mkdir_p(mypath):
-    '''Creates a directory. equivalent to using mkdir -p on the command line'''
-
-    from errno import EEXIST
-    from os import makedirs, path
-
-    try:
-        makedirs(mypath)
-    except OSError as exc:
-        if exc.errno == EEXIST and path.isdir(mypath):
-            pass
-        else:
-            raise
 
 def append_folder_and_files(folder, files):
     folder_vec = np.array(len(files)*[folder])

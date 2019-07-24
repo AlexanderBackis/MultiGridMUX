@@ -110,8 +110,8 @@ def get_ADC_to_Ch_dict():
         # Prepare storage of mapping for current detector
         ADC_to_Ch = {'Wires': {i: -1 for i in range(4096)},
                      'Grids': {i: -1 for i in range(4096)}}
-        print(detector)
-        print('--')
+        #print(detector)
+        #print('--')
         for key, delimiters in delimiters_table.items():
             layers = layers_dict[key]
             for i, (start, stop) in enumerate(delimiters):
@@ -121,7 +121,7 @@ def get_ADC_to_Ch_dict():
                 previous_value = small_delimiters[0]
                 for j, value in enumerate(small_delimiters[1:]):
                     channel = channel_mapping[key][i*layers+j]
-                    print('i: %s, Ch: %s' % (str(i*layers+j), str(channel)))
+                    #print('i: %s, Ch: %s' % (str(i*layers+j), str(channel)))
                     start, stop = int(round(previous_value)), int(round(value))
                     # Assign ADC->Ch mapping for all values within interval
                     for k in np.arange(start, stop, 1):

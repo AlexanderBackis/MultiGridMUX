@@ -124,3 +124,62 @@ def PHS_2D_plot(window):
     plt.tight_layout()
 
     return fig
+
+# =============================================================================
+# PHS (Individual Channels)
+# =============================================================================
+
+def PHS_Individual_plot(window):
+    # Import data
+    df_20 = window.Clusters_20_layers
+    df_16 = window.Clusters_16_layers
+    # Intial filter
+    clusters_16 = filter_clusters(df_16, window)
+    clusters_20 = filter_clusters(df_20, window)
+    # Declare parameters
+    clusters_vec = [clusters_16, clusters_20]
+    detectors = ['16_layers', '20_layers']
+    layers_vec = [16, 20]
+    dir_name = os.path.dirname(__file__)
+    folder_path = os.path.join(dir_name, '../../Results/PHS/')
+    number_bins = int(window.phsBins.text())
+    # Save all PHS
+    for clusters, detector, layers in zip(clusters_vec, detectors, layers_vec):
+        # Save wires PHS
+        for wCh in np.arange(0, layers*4, 1):
+            print('%s, Wires: %d/%d' % (detector, wCh, layers*4-1))
+            # Get ADC values
+            adcs = clusters[clusters.wCh_m1 == wCh]['wADC_m1']
+            # Plot
+            fig = plt.figure()
+            plt.hist(adcs, bins=number_bins, range=[0, 4095], histtype='step',
+                     color='black', zorder=5)
+            plt.grid(True, which='major', zorder=0)
+            plt.grid(True, which='minor', linestyle='--', zorder=0)
+            plt.xlabel('Collected charge [ADC channels]')
+            plt.ylabel('Counts')
+            plt.title('PHS wires - Channel %d\nData set: %s' % (wCh, window.data_sets))
+            # Save
+            output_path = '%s/%s/Wires/Channel_%d.pdf' % (folder_path, detector, wCh)
+            fig.savefig(output_path, bbox_inches='tight')
+            plt.close()
+        # Save grids PHS
+        for gCh in np.arange(0, 12, 1):
+            print('%s, Grids: %d/11' % (detector, gCh))
+            # Get ADC values
+            adcs_1 = clusters[clusters.gCh_m1 == gCh]['gADC_m1']
+            adcs_2 = clusters[clusters.gCh_m2 == gCh]['gADC_m2']
+            adcs = adcs_1.append(adcs_2)
+            # Plot
+            fig = plt.figure()
+            plt.hist(adcs, bins=number_bins, range=[0, 4095], histtype='step',
+                     color='black', zorder=5)
+            plt.grid(True, which='major', zorder=0)
+            plt.grid(True, which='minor', linestyle='--', zorder=0)
+            plt.xlabel('Collected charge [ADC channels]')
+            plt.ylabel('Counts')
+            plt.title('PHS grids - Channel %d\nData set: %s' % (gCh, window.data_sets))
+            # Save
+            output_path = '%s/%s/Grids/Channel_%d.pdf' % (folder_path, detector, gCh)
+            fig.savefig(output_path, bbox_inches='tight')
+            plt.close()
