@@ -20,53 +20,11 @@
       <x>10</x>
       <y>130</y>
       <width>121</width>
-      <height>51</height>
+      <height>131</height>
      </rect>
     </property>
     <property name="text">
-     <string>Cluster
-('.zip')</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="save_button">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>170</y>
-      <width>121</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Save
-('.zip'→'.h5')</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="load_button">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>210</y>
-      <width>121</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Load
-('.h5')</string>
-    </property>
-   </widget>
-   <widget class="QProgressBar" name="save_progress">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>188</y>
-      <width>101</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="value">
-     <number>0</number>
+     <string>Import</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_5">
@@ -87,19 +45,6 @@
     </property>
     <property name="text">
      <string>         Files         </string>
-    </property>
-   </widget>
-   <widget class="QProgressBar" name="load_progress">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>228</y>
-      <width>101</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="value">
-     <number>0</number>
     </property>
    </widget>
    <widget class="QWidget" name="gridLayoutWidget">
