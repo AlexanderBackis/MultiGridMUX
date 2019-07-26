@@ -17,7 +17,7 @@ from Plotting.Coincidences import (Coincidences_2D_plot, Coincidences_3D_plot,
                                    Coincidences_Front_Top_Side_plot)
 from Plotting.Miscellaneous import ToF_histogram, Channels_plot, ADC_plot
 from Plotting.HelpMessage import gethelp
-from Plotting.HelperFunctions import get_ADC_to_Ch_dict
+from Plotting.HelperFunctions import get_ADC_to_Ch_dict, filter_clusters
 
 # =============================================================================
 # Windows
@@ -32,6 +32,7 @@ class MainWindow(QMainWindow):
         self.app = app
         self.measurement_time = 0
         self.data_sets = ''
+        self.folder_path = ''
         self.Clusters_20_layers = pd.DataFrame()
         self.Clusters_16_layers = pd.DataFrame()
         self.show()
@@ -146,8 +147,8 @@ class MainWindow(QMainWindow):
             #print(self.Clusters_20_layers)
         print('Total time')
         print((time.time() - first_time))
-        print()
-        print()
+        self.folder_path = folder_path
+        self.get_measurement_time()
 
     # =========================================================================
     # Plotting
@@ -200,6 +201,20 @@ class MainWindow(QMainWindow):
         print("HELP!!!!")
         gethelp()
 
+    def rate_action(self):
+        if self.data_sets != '':
+            # Declare clusters
+            ce_20 = self.Clusters_20_layers
+            ce_16 = self.Clusters_16_layers
+            # Filter
+            ce_red_20 = filter_clusters(ce_20, self)
+            ce_red_16 = filter_clusters(ce_16, self)
+            # Get measurement time
+            measurement_time = self.get_measurement_time()
+            rate_20 = ce_red_20.shape[0]/measurement_time
+            rate_16 = ce_red_16.shape[0]/measurement_time
+            print('Rate 20 layers: %f Hz' % rate_20)
+            print('Rate 16 layers: %f Hz' % rate_16)
 
     # ========================================================================
     # Helper Functions
@@ -218,6 +233,7 @@ class MainWindow(QMainWindow):
         self.ToF_button.clicked.connect(self.ToF_action)
         self.Channels_button.clicked.connect(self.Channels_action)
         self.ADC_button.clicked.connect(self.ADC_action)
+        self.rate_button.clicked.connect(self.rate_action)
         # Help
         self.help_button.clicked.connect(self.help_action)
 
@@ -229,6 +245,17 @@ class MainWindow(QMainWindow):
         self.app.processEvents()
         self.app.processEvents()
         self.app.processEvents()
+
+    def get_measurement_time(self):
+        # Iterate through all files in folder
+        file_names = [f for f in os.listdir(self.folder_path) if f[-4:] == '.bin']
+        file_paths = append_folder_and_files(self.folder_path + '/', file_names)
+        start = os.path.getmtime(file_paths[0])
+        stop = os.path.getmtime(file_paths[-1])
+        return (stop - start)
+
+
+
 
 
 # =============================================================================
