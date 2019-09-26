@@ -15,7 +15,8 @@ from contextlib import ExitStack
 from Plotting.PHS import PHS_1D_plot, PHS_2D_plot, PHS_Individual_plot
 from Plotting.Coincidences import (Coincidences_2D_plot, Coincidences_3D_plot,
                                    Coincidences_Front_Top_Side_plot)
-from Plotting.Miscellaneous import ToF_histogram, Channels_plot, ADC_plot
+from Plotting.Miscellaneous import (ToF_histogram, Channels_plot, ADC_plot,
+                                    Channels_rates_plot)
 from Plotting.HelpMessage import gethelp
 from Plotting.HelperFunctions import get_ADC_to_Ch_dict, filter_clusters
 
@@ -216,6 +217,12 @@ class MainWindow(QMainWindow):
             print('Rate 20 layers: %f Hz' % rate_20)
             print('Rate 16 layers: %f Hz' % rate_16)
 
+    def channels_rates_action(self):
+        if self.data_sets !='':
+            measurement_time = self.get_measurement_time()
+            fig = Channels_rates_plot(self, measurement_time)
+            fig.show()
+
     # ========================================================================
     # Helper Functions
     # ========================================================================
@@ -234,6 +241,7 @@ class MainWindow(QMainWindow):
         self.Channels_button.clicked.connect(self.Channels_action)
         self.ADC_button.clicked.connect(self.ADC_action)
         self.rate_button.clicked.connect(self.rate_action)
+        self.channels_rates_button.clicked.connect(self.channels_rates_action)
         # Help
         self.help_button.clicked.connect(self.help_action)
 

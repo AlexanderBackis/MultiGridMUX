@@ -6,7 +6,7 @@ import plotly.graph_objs as go
 import pandas as pd
 import plotly.io as pio
 import os
-from Plotting.HelperFunctions import import_delimiter_table
+from Plotting.HelperFunctions import import_delimiter_table, filter_clusters
 
 
 # =============================================================================
@@ -161,4 +161,97 @@ def ADC_plot(window):
             sub_title = attribute + ' (20 layers)'
             PHS_1D_plot_bus(events_attribute, sub_title, number_bins)
     plt.tight_layout()
+    return fig
+
+# ============================================================================
+# Channels rates plot
+# ============================================================================
+
+def Channels_rates_plot(window, measurement_time):
+    """plots neutron event rate for each channel"""
+    def channel_rates_plot_bus(events, subtitle, typeCh, name, wires):
+        plt.xlabel('grid channel')
+        plt.ylabel('Rate of total counts')
+        plt.grid(True, which='major', zorder=0)
+        plt.grid(True, which='minor', linestyle='--', zorder=0)
+        plt.title("Grid rates")
+        #print("Grid channel \t rate")
+        gChs = []
+        g_rates = []
+        if typeCh == 'gCh':
+            for gCh in np.arange(0, 12, 1):
+                counts = 0
+                vals = clusters_dict[name]['g'].values
+                for val in vals:
+                    if val == gCh:
+                        counts += 1
+                rate = counts/((measurement_time))
+                gChs.append(gCh)
+                g_rates.append(rate)
+                #print(gCh, "\t", rate, "Hz")
+            plt.scatter(gChs, g_rates, color="darkorange", zorder=2)
+            plt.title(sub_title)
+
+        #print("Wire channel \t rate")
+        wChs = []
+        w_rates = []
+        if typeCh == 'wCh':
+            for wCh in np.arange(0, wires, 1):
+                counts = 0
+                vals = clusters_dict[name]['w'].values
+                for val in vals:
+                    if val == wCh:
+                        counts += 1
+                rate = counts/((measurement_time))
+                wChs.append(wCh)
+                w_rates.append(rate)
+                #print(wCh, "\t", rate, "Hz")
+            plt.scatter(wChs, w_rates, color="crimson", zorder=2)
+            plt.title(sub_title)
+
+    # Import data
+    ce_20 = window.Clusters_20_layers
+    ce_16 = window.Clusters_16_layers
+    # Filter
+    ce_red_20 = filter_clusters(ce_20, window)
+    ce_red_16 = filter_clusters(ce_16, window)
+    clusters_20 = ce_red_20#.shape[0]
+    clusters_16 = ce_red_16#.shape[0]
+    clusters_vec = [clusters_20, clusters_16]
+    clusters_dict = {'ce_20': {'w': None, 'g': None},
+                     'ce_16': {'w': None, 'g': None}}
+    # Select grids with highest collected charge
+    for clusters, name in zip(clusters_vec, ['ce_20', 'ce_16']):
+        channels_g1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['gCh_m1']
+        channels_w1 = clusters[clusters['gADC_m1'] > clusters['gADC_m2']]['wCh_m1']
+        channels_g2 = clusters[clusters['gADC_m1'] <= clusters['gADC_m2']]['gCh_m2']
+        channels_w2 = clusters[clusters['gADC_m1'] <= clusters['gADC_m2']]['wCh_m1']
+        clusters_dict[name]['g'] = channels_g1.append(channels_g2)
+        clusters_dict[name]['w'] = channels_w1.append(channels_w2)
+
+    typeChs = ['gCh', 'wCh']
+    grids_or_wires = {'wCh': 'Wires', 'gCh': 'Grids'}
+    # plot
+    fig = plt.figure()
+    fig.set_figheight(5)
+    fig.set_figwidth(10)
+    plt.suptitle('Total rate per channel \n%s' % window.data_sets.splitlines()[0])
+
+    # for 20 layers
+    for i, typeCh in enumerate(typeChs):
+        sub_title = "%s -- 20 layers" % grids_or_wires[typeCh]
+        wires = 80
+        name = 'ce_20'
+        plt.subplot(2,2,i+1)
+        channel_rates_plot_bus(clusters_20, sub_title, typeCh, name, wires)
+
+    # for 16 layers
+    for i, typeCh in enumerate(typeChs):
+        sub_title = "%s -- 16 layers" % grids_or_wires[typeCh]
+        name = 'ce_16'
+        plt.subplot(2,2,i+3)
+        wires = 64
+        channel_rates_plot_bus(clusters_16, sub_title, typeCh, name, wires)
+
+    plt.subplots_adjust(left=0.1, right=0.98, top=0.86, bottom=0.09, wspace=0.25, hspace=0.45)
     return fig
